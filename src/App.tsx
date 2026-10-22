@@ -8,7 +8,7 @@ import { keyboardMap } from './world/player/controls';
 export default function App() {
   return (
     <KeyboardControls map={keyboardMap}>
-      <Canvas shadows camera={{ fov: 50, position: [0, 10, 12] }}>
+      <Canvas shadows="percentage" camera={{ fov: 50, position: [0, 10, 12] }}>
         {/* Rapier loads its WASM physics engine asynchronously, Suspense waits for it */}
         <Suspense fallback={null}>
           <Physics>
