@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { CuboidCollider, RigidBody } from '@react-three/rapier';
-import { BEACH_RADIUS, rimScale } from './islandShape';
+import { shoreRadius } from './islandShape';
 
-const WALL_COUNT = 48;
-const SHORE_MARGIN = 1; // keeps the player this far from the water's edge
+const WALL_COUNT = 72;
+const SHORE_MARGIN = 1.5; // keeps the player this far from the water's edge
 
 // invisible walls just inside the shoreline that stop the player from
 // walking into the sea
@@ -12,7 +12,7 @@ export function IslandBoundary() {
     () =>
       Array.from({ length: WALL_COUNT }, (_, index) => {
         const angle = (index / WALL_COUNT) * Math.PI * 2;
-        const radius = BEACH_RADIUS * rimScale(angle) - SHORE_MARGIN;
+        const radius = shoreRadius(angle) - SHORE_MARGIN;
         const length = (2 * Math.PI * radius) / WALL_COUNT;
         return { angle, radius, length };
       }),

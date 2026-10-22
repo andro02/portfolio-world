@@ -2,6 +2,7 @@ import { Billboard, Text } from '@react-three/drei';
 import { CuboidCollider, RigidBody } from '@react-three/rapier';
 import type { ProjectMeta } from '../projects/types';
 import { useGameStore } from '../store/useGameStore';
+import { terrainHeight } from '../world/island/islandShape';
 
 interface StationProps {
   meta: ProjectMeta;
@@ -12,8 +13,12 @@ export function Station({ meta }: StationProps) {
   const leaveStation = useGameStore((s) => s.leaveStation);
   const isNearby = useGameStore((s) => s.nearbyProject === meta.slug);
 
+  // stand on the ground, which is not flat on the island
+  const [x, , z] = meta.position;
+  const y = terrainHeight(x, z);
+
   return (
-    <group position={meta.position}>
+    <group position={[x, y, z]}>
       <RigidBody type="fixed" colliders="cuboid">
         {/* pedestal, highlighted while the player is nearby */}
         <mesh castShadow receiveShadow position={[0, 0.75, 0]}>
