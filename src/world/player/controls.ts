@@ -1,4 +1,4 @@
-export type Control = 'forward' | 'backward' | 'left' | 'right' | 'jump';
+export type Control = 'forward' | 'backward' | 'left' | 'right' | 'jump' | 'interact';
 
 // maps each action to its keys; KeyW etc. are layout-independent key codes
 export const keyboardMap: { name: Control; keys: string[] }[] = [
@@ -7,4 +7,5 @@ export const keyboardMap: { name: Control; keys: string[] }[] = [
   { name: 'left', keys: ['ArrowLeft', 'KeyA'] },
   { name: 'right', keys: ['ArrowRight', 'KeyD'] },
   { name: 'jump', keys: ['Space'] },
+  { name: 'interact', keys: ['KeyE'] },
 ];

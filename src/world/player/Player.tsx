@@ -4,6 +4,7 @@ import { useKeyboardControls } from '@react-three/drei';
 import { CapsuleCollider, RigidBody, type RapierRigidBody } from '@react-three/rapier';
 import { Vector3 } from 'three';
 import type { Control } from './controls';
+import { useGameStore } from '../../store/useGameStore';
 
 const SPEED = 6;
 const JUMP_VELOCITY = 5;
@@ -23,16 +24,21 @@ export function Player() {
 
     const { forward, backward, left, right, jump } = getKeys();
 
+    // ignore movement input while a project panel is open
+    const isPanelOpen = useGameStore.getState().openProject !== null;
+
     // build movement direction from pressed keys (x: left/right, z: forward/backward)
-    direction.set(Number(right) - Number(left), 0, Number(backward) - Number(forward));
+    if (isPanelOpen) direction.set(0, 0, 0);
+    else direction.set(Number(right) - Number(left), 0, Number(backward) - Number(forward));
     if (direction.lengthSq() > 0) direction.normalize().multiplyScalar(SPEED);
 
     // simplified ground check, will be replaced with a raycast later
     const velocity = body.current.linvel();
     const grounded = Math.abs(velocity.y) < 0.05;
+    const canJump = jump && grounded && !isPanelOpen;
 
     body.current.setLinvel(
-      { x: direction.x, y: jump && grounded ? JUMP_VELOCITY : velocity.y, z: direction.z },
+      { x: direction.x, y: canJump ? JUMP_VELOCITY : velocity.y, z: direction.z },
       true,
     );
 
