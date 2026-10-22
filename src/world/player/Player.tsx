@@ -46,6 +46,7 @@ export function Player() {
   return (
     <RigidBody
       ref={body}
+      name="player"
       colliders={false}
       enabledRotations={[false, false, false]}
       position={[0, 2, 0]}
