@@ -1,29 +1,51 @@
+import { useEffect } from 'react';
 import { Terminal } from '../../ui/terminal/Terminal';
+import { loadEngine } from './engine/engine';
+import type { MemoryFileSystem } from './engine/memoryFs';
+
+const WASM_URL = `${import.meta.env.BASE_URL}projects/kv-storage-engine/kv.wasm`;
 
 const WELCOME = [
   'NoSQL key-value storage engine (LSM-tree), written in Go.',
-  'Type "help" to see available commands.',
+  'This is the real engine, compiled to WebAssembly and running in your browser.',
+  '',
+  'Try: PUT name andrija, GET name, then a few more PUTs and "ls"',
+  'to watch WAL segments and SSTables appear. Type "help" for all commands.',
 ];
 
-const HELP = [
-  'PUT <key> <value>   store a value',
-  'GET <key>           read a value',
-  'DELETE <key>        delete a value (tombstone)',
-  'CMS                 Count-Min Sketch frequency estimate',
-  'HLL                 HyperLogLog cardinality estimate',
-  'clear               clear the screen',
-].join('\n');
+// commands handled here, on top of the ones the engine provides
+const EXTRA_HELP = `
+Terminal commands:
+  ls                         list engine files (WAL segments, SSTables)
+  clear                      clear the screen`;
 
-function handleCommand(input: string): string {
-  const command = input.split(/\s+/)[0].toUpperCase();
+async function handleCommand(input: string): Promise<string> {
+  const engine = await loadEngine(WASM_URL);
+  const command = input.trim().toLowerCase();
 
-  if (command === 'HELP') return HELP;
+  if (command === 'ls') return listFiles(engine.fs).join('\n');
 
-  // temporary: the real Go engine compiled to WebAssembly is wired in next
-  return 'Engine is not connected yet.';
+  const output = await engine.execute(input);
+  return command === 'help' ? output + EXTRA_HELP : output;
+}
+
+// lists the engine's in-memory file system as an indented tree
+function listFiles(fs: MemoryFileSystem, path = '/', indent = ''): string[] {
+  return fs
+    .list(path)
+    .flatMap(([name, size]) =>
+      size === null
+        ? [`${indent}${name}/`, ...listFiles(fs, `${path}${name}/`, indent + '  ')]
+        : [`${indent}${name.padEnd(32 - indent.length)}${size} B`],
+    );
 }
 
 // default export so the registry can lazy-load this file
 export default function KvShowcase() {
+  // start downloading the engine as soon as the panel opens
+  useEffect(() => {
+    void loadEngine(WASM_URL);
+  }, []);
+
   return <Terminal onCommand={handleCommand} welcome={WELCOME} />;
 }
