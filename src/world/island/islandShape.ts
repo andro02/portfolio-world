@@ -2,6 +2,9 @@
 // The terrain mesh, its collider, the invisible walls and the stations all use
 // these functions, so everything lines up.
 
+import { projects } from '../../projects/registry';
+import { PATH_HALF_WIDTH, distanceToPaths } from './paths';
+
 export const ISLAND_RADIUS = 34; // average distance from the centre to the shoreline
 export const WATER_LEVEL = -0.4;
 export const TERRAIN_SIZE = 160; // side of the square terrain mesh (island and sea floor)
@@ -32,10 +35,19 @@ export function terrainHeight(x: number, z: number): number {
   const d = shoreDistance(x, z);
 
   if (d <= GRASS_END) {
-    // gentle hills that flatten out towards the beach
-    const hills = 0.35 * Math.sin(x * 0.18) * Math.cos(z * 0.15) + 0.2 * Math.sin((x + z) * 0.31);
-    const fade = 1 - smoothstep(GRASS_END - 0.2, GRASS_END, d);
-    return PLATEAU_HEIGHT + Math.max(0, hills) * fade;
+    // rolling hills made of a few overlapping waves of different sizes,
+    // plus small bumps that give the low-poly ground some texture
+    const waves =
+      0.6 * Math.sin(x * 0.11 + 1.3) * Math.cos(z * 0.13 + 0.4) +
+      0.4 * Math.sin(x * 0.23 - z * 0.19) +
+      0.2 * Math.sin(x * 0.47 + z * 0.41);
+    const hills = Math.max(0, waves + 0.3) * 1.2;
+    const bumps = 0.08 * Math.sin(x * 1.7) * Math.sin(z * 1.9);
+
+    // flat near the beach, along the paths and around the stations
+    const fade =
+      (1 - smoothstep(GRASS_END - 0.2, GRASS_END, d)) * smoothstep(0, 3, distanceToWalkways(x, z));
+    return PLATEAU_HEIGHT + (hills + bumps) * fade;
   }
 
   if (d <= 1) {
@@ -52,4 +64,13 @@ export function terrainHeight(x: number, z: number): number {
 export function smoothstep(edge0: number, edge1: number, value: number): number {
   const t = Math.min(1, Math.max(0, (value - edge0) / (edge1 - edge0)));
   return t * t * (3 - 2 * t);
+}
+
+// distance to the nearest path or station area, used to keep them flat
+function distanceToWalkways(x: number, z: number): number {
+  const toPath = distanceToPaths(x, z) - PATH_HALF_WIDTH;
+  const toStation = Math.min(
+    ...projects.map(({ meta }) => Math.hypot(x - meta.position[0], z - meta.position[2]) - 3),
+  );
+  return Math.max(0, Math.min(toPath, toStation));
 }
