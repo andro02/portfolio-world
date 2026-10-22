@@ -16,28 +16,41 @@ const WELCOME = [
 // commands handled here, on top of the ones the engine provides
 const EXTRA_HELP = `
 Terminal commands:
-  ls                         list engine files (WAL segments, SSTables)
+  ls [directory]             list engine files (WAL segments, SSTables)
   clear                      clear the screen`;
 
 async function handleCommand(input: string): Promise<string> {
   const engine = await loadEngine(WASM_URL);
-  const command = input.trim().toLowerCase();
+  const [command, ...args] = input.trim().split(/\s+/);
+  const name = command.toLowerCase();
 
-  if (command === 'ls') return listFiles(engine.fs).join('\n');
+  if (name === 'ls') return listCommand(engine.fs, args[0]);
 
   const output = await engine.execute(input);
-  return command === 'help' ? output + EXTRA_HELP : output;
+  return name === 'help' ? output + EXTRA_HELP : output;
+}
+
+// handles "ls", "ls logs", "ls /sstable/" etc.
+function listCommand(fs: MemoryFileSystem, directory = ''): string {
+  const name = directory.replace(/^\/+|\/+$/g, ''); // trim leading and trailing slashes
+  const path = name ? `/${name}/` : '/';
+
+  try {
+    const lines = listFiles(fs, path);
+    return lines.length > 0 ? lines.join('\n') : '(empty)';
+  } catch {
+    return `ls: ${directory}: no such directory`;
+  }
 }
 
 // lists the engine's in-memory file system as an indented tree
-function listFiles(fs: MemoryFileSystem, path = '/', indent = ''): string[] {
-  return fs
-    .list(path)
-    .flatMap(([name, size]) =>
-      size === null
-        ? [`${indent}${name}/`, ...listFiles(fs, `${path}${name}/`, indent + '  ')]
-        : [`${indent}${name.padEnd(32 - indent.length)}${size} B`],
-    );
+function listFiles(fs: MemoryFileSystem, path: string, indent = ''): string[] {
+  return fs.list(path).flatMap(([name, size]) => {
+    if (size !== null) return [`${indent}${name.padEnd(32 - indent.length)}${size} B`];
+
+    const children = listFiles(fs, `${path}${name}/`, indent + '  ');
+    return [`${indent}${name}/`, ...(children.length > 0 ? children : [`${indent}  (empty)`])];
+  });
 }
 
 // default export so the registry can lazy-load this file
