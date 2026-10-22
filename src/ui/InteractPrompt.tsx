@@ -10,13 +10,14 @@ export function InteractPrompt() {
   const openProject = useGameStore((s) => s.openProject);
   const openNearbyProject = useGameStore((s) => s.openNearbyProject);
 
-  // react to the moment E is pressed, not to it being held down
+  // open on key release: by then the key press is over, so the "e" can't
+  // end up typed into an input that the newly opened panel focuses
   useEffect(
     () =>
       subscribe(
         (state) => state.interact,
         (pressed) => {
-          if (pressed) openNearbyProject();
+          if (!pressed) openNearbyProject();
         },
       ),
     [subscribe, openNearbyProject],
