@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useKeyboardControls } from '@react-three/drei';
-import { CapsuleCollider, RigidBody, type RapierRigidBody } from '@react-three/rapier';
+import { CapsuleCollider, RigidBody, useRapier, type RapierRigidBody } from '@react-three/rapier';
 import { Vector3 } from 'three';
 import type { Control } from './controls';
 import { useGameStore } from '../../store/useGameStore';
@@ -9,6 +9,11 @@ import { useGameStore } from '../../store/useGameStore';
 const SPEED = 6;
 const JUMP_VELOCITY = 5;
 const CAMERA_OFFSET = new Vector3(0, 10, 12);
+
+// distance from the centre of the capsule to its bottom (half height + radius)
+const FEET_OFFSET = 1;
+// how far below the feet the ground may be and still count as standing on it
+const GROUND_TOLERANCE = 0.2;
 
 // reused every frame to avoid allocating new objects 60 times per second
 const direction = new Vector3();
@@ -18,6 +23,7 @@ const cameraPosition = new Vector3();
 export function Player() {
   const body = useRef<RapierRigidBody>(null);
   const [, getKeys] = useKeyboardControls<Control>();
+  const { world, rapier } = useRapier();
 
   useFrame((state, delta) => {
     if (!body.current) return;
@@ -32,9 +38,21 @@ export function Player() {
     else direction.set(Number(right) - Number(left), 0, Number(backward) - Number(forward));
     if (direction.lengthSq() > 0) direction.normalize().multiplyScalar(SPEED);
 
-    // simplified ground check, will be replaced with a raycast later
+    // ground check: cast a short ray straight down from the centre of the player;
+    // it ignores the player's own body and trigger zones of the stations
     const velocity = body.current.linvel();
-    const grounded = Math.abs(velocity.y) < 0.05;
+    const ray = new rapier.Ray(body.current.translation(), { x: 0, y: -1, z: 0 });
+    const groundHit = world.castRay(
+      ray,
+      FEET_OFFSET + GROUND_TOLERANCE,
+      true,
+      rapier.QueryFilterFlags.EXCLUDE_SENSORS,
+      undefined,
+      undefined,
+      body.current,
+    );
+    // not while already moving up, so holding space doesn't extend the jump
+    const grounded = groundHit !== null && velocity.y < 1;
     const canJump = jump && grounded && !isPanelOpen;
 
     body.current.setLinvel(
