@@ -99,3 +99,15 @@
   color: #c2571a;
   font-weight: 600;
 }
+
+.project-panel.has-showcase {
+  width: min(960px, 100%);
+}
+
+.panel-showcase {
+  margin-top: 24px;
+}
+
+.panel-loading {
+  color: #8a8578;
+}

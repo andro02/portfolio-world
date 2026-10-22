@@ -28,7 +28,7 @@ export function InteractPrompt() {
 
   return (
     <div className="interact-prompt">
-      <kbd>E</kbd> Open {project?.title}
+      <kbd>E</kbd> Open {project?.meta.title}
     </div>
   );
 }

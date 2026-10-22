@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react';
+import type { ComponentType, LazyExoticComponent } from 'react';
 
 export type ProjectKind = 'web' | 'console' | 'iot' | 'ml' | 'backend';
 
@@ -15,6 +15,7 @@ export interface ProjectMeta {
 
 export interface ProjectDefinition {
   meta: ProjectMeta;
-  // interactive showcase, lazy-loaded when the player approaches the station
-  Showcase: ComponentType;
+  // interactive showcase, lazy-loaded the first time its panel is opened
+  // (optional so projects can be added before their showcase is built)
+  Showcase?: LazyExoticComponent<ComponentType>;
 }
