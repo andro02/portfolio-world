@@ -1,8 +1,14 @@
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useKeyboardControls } from '@react-three/drei';
-import { CapsuleCollider, RigidBody, useRapier, type RapierRigidBody } from '@react-three/rapier';
-import { Vector3 } from 'three';
+import {
+  CapsuleCollider,
+  CoefficientCombineRule,
+  RigidBody,
+  useRapier,
+  type RapierRigidBody,
+} from '@react-three/rapier';
+import { Vector3, type Mesh } from 'three';
 import type { Control } from './controls';
 import { useGameStore } from '../../store/useGameStore';
 
@@ -19,14 +25,16 @@ const GROUND_TOLERANCE = 0.2;
 const direction = new Vector3();
 const playerPosition = new Vector3();
 const cameraPosition = new Vector3();
+const lookTarget = new Vector3();
 
 export function Player() {
   const body = useRef<RapierRigidBody>(null);
+  const model = useRef<Mesh>(null);
   const [, getKeys] = useKeyboardControls<Control>();
   const { world, rapier } = useRapier();
 
   useFrame((state, delta) => {
-    if (!body.current) return;
+    if (!body.current || !model.current) return;
 
     const { forward, backward, left, right, jump } = getKeys();
 
@@ -60,11 +68,17 @@ export function Player() {
       true,
     );
 
-    // smoothly follow the player with the camera (frame-rate independent lerp)
-    playerPosition.copy(body.current.translation());
+    // follow the position of the visible model, not of the physics body: physics
+    // runs in fixed steps of 1/60 s, so the body jumps forward in small steps,
+    // while the model is interpolated between them and moves smoothly
+    model.current.getWorldPosition(playerPosition);
+
+    // smoothly move the camera and the point it looks at (frame-rate independent lerp)
+    const follow = 1 - Math.exp(-5 * delta);
     cameraPosition.copy(playerPosition).add(CAMERA_OFFSET);
-    state.camera.position.lerp(cameraPosition, 1 - Math.exp(-5 * delta));
-    state.camera.lookAt(playerPosition);
+    state.camera.position.lerp(cameraPosition, follow);
+    lookTarget.lerp(playerPosition, follow);
+    state.camera.lookAt(lookTarget);
   });
 
   return (
@@ -75,8 +89,14 @@ export function Player() {
       enabledRotations={[false, false, false]}
       position={[0, 2, 0]}
     >
-      <CapsuleCollider args={[0.5, 0.5]} />
-      <mesh castShadow>
+      {/* no friction: movement is controlled by setting the velocity directly, and
+          friction would make the player stick to walls when jumping against them */}
+      <CapsuleCollider
+        args={[0.5, 0.5]}
+        friction={0}
+        frictionCombineRule={CoefficientCombineRule.Min}
+      />
+      <mesh ref={model} castShadow>
         <capsuleGeometry args={[0.5, 1, 8, 16]} />
         <meshStandardMaterial color="#f2a65a" />
       </mesh>
