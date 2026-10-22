@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { RigidBody, TrimeshCollider } from '@react-three/rapier';
 import { Color, Float32BufferAttribute, MeshStandardMaterial, PlaneGeometry } from 'three';
 import { islandTime } from './islandTime';
+import { WAVE_FUNCTION } from './waves';
 import {
   GRASS_END,
   SEA_FLOOR_DEPTH,
@@ -70,7 +71,7 @@ function createTerrain() {
   };
 }
 
-// standard material plus a band of foam that washes up and down the beach
+// standard material plus foam that washes up the beach in waves
 function createMaterial() {
   const material = new MeshStandardMaterial({ vertexColors: true, flatShading: true });
 
@@ -78,25 +79,43 @@ function createMaterial() {
     shader.uniforms.uTime = islandTime;
 
     shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', '#include <common>\nvarying float vWorldY;')
+      .replace('#include <common>', '#include <common>\nvarying vec3 vWorldPos;')
       .replace(
         '#include <begin_vertex>',
         `#include <begin_vertex>
-        vWorldY = (modelMatrix * vec4(transformed, 1.0)).y;`,
+        vWorldPos = (modelMatrix * vec4(transformed, 1.0)).xyz;`,
       );
 
     shader.fragmentShader = shader.fragmentShader
       .replace(
         '#include <common>',
-        '#include <common>\nuniform float uTime;\nvarying float vWorldY;',
+        `#include <common>
+        uniform float uTime;
+        varying vec3 vWorldPos;
+        ${WAVE_FUNCTION}`,
       )
       .replace(
         '#include <color_fragment>',
         `#include <color_fragment>
-        // the foam line moves up and down with the waves
-        float foamLine = ${WATER_LEVEL.toFixed(2)} + 0.05 + sin(uTime * 0.9) * 0.08;
-        float foam = smoothstep(foamLine - 0.14, foamLine - 0.05, vWorldY)
-          * (1.0 - smoothstep(foamLine, foamLine + 0.04, vWorldY));
+        // height of this point above the water surface right here, right now
+        float surface = ${WATER_LEVEL.toFixed(2)} + waveHeight(vWorldPos.xz, uTime);
+        float aboveWater = vWorldPos.y - surface;
+
+        // every stretch of the coast gets its own rhythm, so waves don't all
+        // arrive at once; surge is a short burst followed by a calm period
+        float phase = uTime * 0.7 + sin(vWorldPos.x * 0.15) * 2.0 + cos(vWorldPos.z * 0.13) * 2.0;
+        float surge = pow(max(0.0, sin(phase)), 3.0);
+
+        // foam starts at the waterline and reaches further up during a surge
+        float reach = 0.03 + surge * 0.12;
+        float foam = smoothstep(-0.02, 0.0, aboveWater)
+          * (1.0 - smoothstep(reach * 0.6, reach, aboveWater))
+          * (0.6 + 0.4 * surge);
+
+        // sand just above the water looks wet and darker
+        float wet = 1.0 - smoothstep(0.0, 0.2, aboveWater);
+        diffuseColor.rgb *= 1.0 - 0.12 * wet * step(0.0, aboveWater);
+
         diffuseColor.rgb = mix(diffuseColor.rgb, vec3(1.0), foam * 0.85);`,
       );
   };

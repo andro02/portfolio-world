@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { MeshStandardMaterial } from 'three';
 import { islandTime } from './islandTime';
 import { WATER_LEVEL } from './islandShape';
+import { WAVE_FUNCTION } from './waves';
 
 // semi-transparent water whose surface is moved by waves in the vertex shader
 function createMaterial() {
@@ -19,15 +20,20 @@ function createMaterial() {
     shader.uniforms.uTime = islandTime;
 
     shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', '#include <common>\nuniform float uTime;\nvarying float vWave;')
+      .replace(
+        '#include <common>',
+        `#include <common>
+        uniform float uTime;
+        varying float vWave;
+        ${WAVE_FUNCTION}`,
+      )
       .replace(
         '#include <begin_vertex>',
         `#include <begin_vertex>
-        // two overlapping waves travelling in different directions
-        // (named waveOrigin because three.js already declares worldPosition)
+        // world position of this point (named waveOrigin because three.js
+        // already declares worldPosition in the same shader)
         vec4 waveOrigin = modelMatrix * vec4(position, 1.0);
-        float wave = sin(waveOrigin.x * 0.35 + uTime * 1.1) * 0.08
-          + sin(waveOrigin.z * 0.27 + uTime * 0.8) * 0.08;
+        float wave = waveHeight(waveOrigin.xz, uTime);
         transformed.z += wave; // the plane is rotated, so its local z points up
         vWave = wave;`,
       );
