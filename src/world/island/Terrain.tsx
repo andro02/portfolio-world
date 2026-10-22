@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { RigidBody, TrimeshCollider } from '@react-three/rapier';
 import { Color, Float32BufferAttribute, MeshStandardMaterial, PlaneGeometry } from 'three';
 import { islandTime } from './islandTime';
+import { PATH_HALF_WIDTH, distanceToPaths } from './paths';
 import { WAVE_FUNCTION } from './waves';
 import {
   GRASS_END,
@@ -19,6 +20,8 @@ const GRASS_DARK = new Color('#74a843');
 const SAND = new Color('#f2d49b');
 const WET_SAND = new Color('#d9b77a');
 const DEEP_WATER = new Color('#1f6f94');
+const PATH = new Color('#c9a26a');
+const PATH_EDGE = new Color('#b5925c');
 
 // colour of one triangle, chosen from its height and distance to the shore
 function faceColor(x: number, y: number, z: number, target: Color): Color {
@@ -30,6 +33,11 @@ function faceColor(x: number, y: number, z: number, target: Color): Color {
   if (shoreDistance(x, z) > GRASS_END) {
     return target.copy(y < WATER_LEVEL + 0.15 ? WET_SAND : SAND);
   }
+  // dirt paths with a slightly darker edge
+  const toPath = distanceToPaths(x, z);
+  if (toPath < PATH_HALF_WIDTH) return target.copy(PATH);
+  if (toPath < PATH_HALF_WIDTH + 0.35) return target.copy(PATH_EDGE);
+
   // two shades of grass in a patchy pattern
   const patch = Math.sin(x * 0.7) * Math.sin(z * 0.6) > 0.2;
   return target.copy(patch ? GRASS_DARK : GRASS);
