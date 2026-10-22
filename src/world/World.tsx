@@ -1,4 +1,5 @@
 import { Environment } from './Environment';
+import { Player } from './player/Player';
 import { Terrain } from './Terrain';
 
 export function World() {
@@ -6,6 +7,7 @@ export function World() {
     <>
       <Environment />
       <Terrain />
+      <Player />
     </>
   );
 }
