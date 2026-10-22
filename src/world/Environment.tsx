@@ -11,10 +11,10 @@ export function Environment() {
         position={[20, 30, 10]}
         intensity={1.5}
         shadow-mapSize={[2048, 2048]}
-        shadow-camera-left={-50}
-        shadow-camera-right={50}
-        shadow-camera-top={50}
-        shadow-camera-bottom={-50}
+        shadow-camera-left={-75}
+        shadow-camera-right={75}
+        shadow-camera-top={75}
+        shadow-camera-bottom={-75}
       />
     </>
   );
