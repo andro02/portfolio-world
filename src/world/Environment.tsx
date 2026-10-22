@@ -5,7 +5,7 @@ export function Environment() {
     <>
       <Sky sunPosition={[80, 35, 60]} turbidity={6} rayleigh={1.2} />
       {/* fog matches the sky near the horizon so the sea fades into it */}
-      <fog attach="fog" args={['#cdeaf5', 45, 140]} />
+      <fog attach="fog" args={['#cdeaf5', 50, 150]} />
 
       {/* soft light from the sky above and warm light bounced from the sand */}
       <hemisphereLight args={['#dff3ff', '#f2d49b', 0.7]} />
@@ -17,11 +17,16 @@ export function Environment() {
         intensity={1.6}
         color="#fff0d4"
         shadow-mapSize={[2048, 2048]}
-        shadow-camera-left={-45}
-        shadow-camera-right={45}
-        shadow-camera-top={45}
-        shadow-camera-bottom={-45}
-        shadow-bias={-0.0005}
+        shadow-camera-left={-55}
+        shadow-camera-right={55}
+        shadow-camera-top={55}
+        shadow-camera-bottom={-55}
+        // a tight near/far range makes the shadow depth more precise
+        shadow-camera-near={1}
+        shadow-camera-far={120}
+        // offset along the surface normal removes shadow stripes on the ground
+        // without detaching the shadow from the player's feet
+        shadow-normalBias={0.04}
       />
     </>
   );
