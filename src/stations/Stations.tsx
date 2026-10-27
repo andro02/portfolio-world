@@ -4,8 +4,8 @@ import { Station } from './Station';
 export function Stations() {
   return (
     <>
-      {projects.map(({ meta }) => (
-        <Station key={meta.slug} meta={meta} />
+      {projects.map((project) => (
+        <Station key={project.meta.slug} project={project} />
       ))}
     </>
   );

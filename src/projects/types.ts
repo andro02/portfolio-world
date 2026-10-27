@@ -13,9 +13,23 @@ export interface ProjectMeta {
   position: [number, number, number]; // station position on the map
 }
 
+export interface StationModelProps {
+  highlighted: boolean; // true while the player stands at the station
+}
+
+// custom 3D model of a station; it is placed facing the path (local +z points
+// towards the plaza) and must stay within about 3 x 3 units, adding its own
+// colliders for the parts the player shouldn't walk through
+export interface StationDesign {
+  Model: ComponentType<StationModelProps>;
+  labelHeight: number; // height of the floating title above the ground
+}
+
 export interface ProjectDefinition {
   meta: ProjectMeta;
   // interactive showcase, lazy-loaded the first time its panel is opened
   // (optional so projects can be added before their showcase is built)
   Showcase?: LazyExoticComponent<ComponentType>;
+  // custom station on the map; projects without one get a plain pedestal
+  station?: StationDesign;
 }

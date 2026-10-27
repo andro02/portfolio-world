@@ -1,14 +1,18 @@
 import { Billboard, Text } from '@react-three/drei';
 import { CuboidCollider, RigidBody } from '@react-three/rapier';
-import type { ProjectMeta } from '../projects/types';
+import type { ProjectDefinition } from '../projects/types';
 import { useGameStore } from '../store/useGameStore';
 import { terrainHeight } from '../world/island/islandShape';
+import { DefaultPedestal } from './DefaultPedestal';
 
 interface StationProps {
-  meta: ProjectMeta;
+  project: ProjectDefinition;
 }
 
-export function Station({ meta }: StationProps) {
+const DEFAULT_LABEL_HEIGHT = 2.2;
+
+export function Station({ project }: StationProps) {
+  const { meta, station } = project;
   const enterStation = useGameStore((s) => s.enterStation);
   const leaveStation = useGameStore((s) => s.leaveStation);
   const isNearby = useGameStore((s) => s.nearbyProject === meta.slug);
@@ -17,16 +21,20 @@ export function Station({ meta }: StationProps) {
   const [x, , z] = meta.position;
   const y = terrainHeight(x, z);
 
+  // turn the model so its front (local +z) faces the plaza in the centre,
+  // where the path to this station comes from
+  const facing = Math.atan2(-x, -z);
+
+  const Model = station?.Model ?? DefaultPedestal;
+  const labelHeight = station?.labelHeight ?? DEFAULT_LABEL_HEIGHT;
+
   return (
     <group position={[x, y, z]}>
-      <RigidBody type="fixed" colliders="cuboid">
-        {/* pedestal, highlighted while the player is nearby */}
-        <mesh castShadow receiveShadow position={[0, 0.75, 0]}>
-          <boxGeometry args={[2, 1.5, 2]} />
-          <meshStandardMaterial color={isNearby ? '#ffd166' : '#e9e4d8'} />
-        </mesh>
+      {/* colliders come from the model itself */}
+      <RigidBody type="fixed" colliders={false} rotation={[0, facing, 0]}>
+        <Model highlighted={isNearby} />
 
-        {/* invisible trigger zone around the pedestal */}
+        {/* invisible trigger zone around the station */}
         <CuboidCollider
           sensor
           args={[3, 1.5, 3]}
@@ -41,7 +49,7 @@ export function Station({ meta }: StationProps) {
       </RigidBody>
 
       {/* title that always faces the camera */}
-      <Billboard position={[0, 2.2, 0]}>
+      <Billboard position={[0, labelHeight, 0]}>
         <Text
           fontSize={0.5}
           maxWidth={8}
