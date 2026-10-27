@@ -11,10 +11,16 @@ import {
 import { Vector3, type Mesh } from 'three';
 import type { Control } from './controls';
 import { useGameStore } from '../../store/useGameStore';
+import { useScrollZoom } from './useScrollZoom';
 
 const SPEED = 6;
 const JUMP_VELOCITY = 5;
-const CAMERA_OFFSET = new Vector3(0, 10, 12);
+
+// camera position relative to the player at the two ends of the zoom range:
+// close up it is low and looks from the side, zoomed out it looks from above
+const CAMERA_CLOSE = new Vector3(0, 2.2, 5);
+const CAMERA_FAR = new Vector3(0, 16, 18);
+const DEFAULT_ZOOM = 0.6; // roughly the previous fixed camera
 
 // distance from the centre of the capsule to its bottom (half height + radius)
 const FEET_OFFSET = 1;
@@ -26,12 +32,15 @@ const direction = new Vector3();
 const playerPosition = new Vector3();
 const cameraPosition = new Vector3();
 const lookTarget = new Vector3();
+const cameraOffset = new Vector3();
 
 export function Player() {
   const body = useRef<RapierRigidBody>(null);
   const model = useRef<Mesh>(null);
   const [, getKeys] = useKeyboardControls<Control>();
   const { world, rapier } = useRapier();
+  const targetZoom = useScrollZoom(DEFAULT_ZOOM);
+  const zoom = useRef(DEFAULT_ZOOM);
 
   useFrame((state, delta) => {
     if (!body.current || !model.current) return;
@@ -73,10 +82,16 @@ export function Player() {
     // while the model is interpolated between them and moves smoothly
     model.current.getWorldPosition(playerPosition);
 
-    // smoothly move the camera and the point it looks at (frame-rate independent lerp)
+    // ease the zoom towards the level picked with the mouse wheel
+    zoom.current += (targetZoom.current - zoom.current) * (1 - Math.exp(-8 * delta));
+    cameraOffset.lerpVectors(CAMERA_CLOSE, CAMERA_FAR, zoom.current);
+
+    // smoothly move the camera and the point it looks at (frame-rate independent lerp);
+    // close up the camera looks a bit higher, at the upper body instead of the middle
     const follow = 1 - Math.exp(-5 * delta);
-    cameraPosition.copy(playerPosition).add(CAMERA_OFFSET);
+    cameraPosition.copy(playerPosition).add(cameraOffset);
     state.camera.position.lerp(cameraPosition, follow);
+    playerPosition.y += (1 - zoom.current) * 0.5;
     lookTarget.lerp(playerPosition, follow);
     state.camera.lookAt(lookTarget);
   });
