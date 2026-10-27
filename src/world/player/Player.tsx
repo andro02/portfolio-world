@@ -11,6 +11,7 @@ import {
 import { Vector3, type Mesh } from 'three';
 import type { Control } from './controls';
 import { useGameStore } from '../../store/useGameStore';
+import { playerWorldPosition } from './playerState';
 import { useScrollZoom } from './useScrollZoom';
 
 const SPEED = 6;
@@ -81,6 +82,7 @@ export function Player() {
     // runs in fixed steps of 1/60 s, so the body jumps forward in small steps,
     // while the model is interpolated between them and moves smoothly
     model.current.getWorldPosition(playerPosition);
+    playerWorldPosition.copy(playerPosition);
 
     // ease the zoom towards the level picked with the mouse wheel
     zoom.current += (targetZoom.current - zoom.current) * (1 - Math.exp(-8 * delta));
