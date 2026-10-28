@@ -15,7 +15,7 @@ export const projects: ProjectDefinition[] = [
   {
     meta: kvStorageEngine,
     loadShowcase: () => import('./kv-storage-engine/Showcase'),
-    station: { Model: KvStationModel, labelHeight: 2.6 },
+    station: { Model: KvStationModel, labelHeight: 2.6, sound: 'typing' },
   },
 ];
 

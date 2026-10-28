@@ -191,6 +191,15 @@ export function distanceToWaterfall(x: number, z: number): number {
   return nearest;
 }
 
+// distance from a point to the middle line of the river
+export function distanceToStream(x: number, z: number): number {
+  let nearest = Infinity;
+  for (let i = 1; i < STREAM.length; i++) {
+    nearest = Math.min(nearest, toSegment(x, z, STREAM[i - 1], STREAM[i]).distance);
+  }
+  return nearest;
+}
+
 // direction the river flows at a point (a vector of length 1), or null when
 // the point is not in the river
 export function streamFlowAt(x: number, z: number): Point | null {

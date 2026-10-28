@@ -4,7 +4,7 @@ import { projects } from '../projects/registry';
 import { useGameStore } from '../store/useGameStore';
 import { ProjectIcon } from './ProjectIcon';
 
-// "Projects" button in the top left corner with a list of all projects, for
+// "Projects" button (in the top bar) with a list of all projects, for
 // visitors who don't want to walk: picking one teleports the fox to that
 // station, the camera flies there, and the project's panel opens.
 
@@ -13,7 +13,6 @@ const OPEN_DELAY_MS = 900;
 
 export function ProjectsMenu() {
   const [open, setOpen] = useState(false);
-  const isPanelOpen = useGameStore((s) => s.openProject !== null);
   const nearbyProject = useGameStore((s) => s.nearbyProject);
   const travelTo = useGameStore((s) => s.travelTo);
   const showProject = useGameStore((s) => s.showProject);
@@ -48,7 +47,7 @@ export function ProjectsMenu() {
   };
 
   return (
-    <div ref={menu} className="projects-menu" data-hidden={isPanelOpen} inert={isPanelOpen}>
+    <div ref={menu} className="projects-menu">
       <button
         className="projects-toggle"
         onClick={() => setOpen(!open)}
