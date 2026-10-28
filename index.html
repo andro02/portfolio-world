@@ -2,11 +2,176 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>portfolio-world</title>
+
+    <title>Andrija Slović — Portfolio</title>
+    <!-- short text shown under the title in search results -->
+    <meta
+      name="description"
+      content="Interactive 3D portfolio of Andrija Slović, software engineer. Walk around the island and visit a station for each project."
+    />
+
+    <!-- icon in the browser tab; the SVG stays sharp at every size -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- icon used when the site is added to the home screen on iPhone / iPad -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- color of the browser bar on phones -->
+    <meta name="theme-color" content="#2f9fc4" />
+
+    <!-- Loading screen styles. They are written here, in the page itself, so
+         the loading screen shows up at once, before the (large) JavaScript and
+         the other styles have been downloaded. -->
+    <style>
+      #loader {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(#cdeaf5, #a9dcec 70%, #7cc8df);
+        color: #3b3426;
+        font:
+          15px/1.5 system-ui,
+          sans-serif;
+        transition: opacity 0.6s ease;
+      }
+
+      /* set by the app once the island has been drawn */
+      #loader[data-state='hidden'] {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .loader-card {
+        display: grid;
+        justify-items: center;
+        gap: 6px;
+        padding: 28px 36px 26px;
+        border-radius: 22px;
+        background: rgba(255, 253, 248, 0.9);
+        box-shadow: 0 18px 50px rgba(30, 60, 80, 0.2);
+        text-align: center;
+      }
+
+      .loader-island {
+        width: 84px;
+        height: 84px;
+        margin-bottom: 6px;
+        animation: loader-bob 2.4s ease-in-out infinite;
+      }
+
+      @keyframes loader-bob {
+        50% {
+          transform: translateY(-6px) rotate(-2deg);
+        }
+      }
+
+      .loader-title {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 800;
+        color: #2a2419;
+      }
+
+      .loader-text {
+        margin: 0;
+        color: #6f6552;
+      }
+
+      /* bar with a stripe sliding through it: we can't tell how far loading
+         is, only that it's happening */
+      .loader-bar {
+        position: relative;
+        width: 180px;
+        height: 6px;
+        margin-top: 10px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #ece4d4;
+      }
+
+      .loader-bar span {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 40%;
+        border-radius: inherit;
+        background: #e8803a;
+        animation: loader-slide 1.3s ease-in-out infinite;
+      }
+
+      @keyframes loader-slide {
+        from {
+          transform: translateX(-100%);
+        }
+        to {
+          transform: translateX(250%);
+        }
+      }
+
+      .loader-tip {
+        margin: 12px 0 0;
+        font-size: 13px;
+        color: #8a7f68;
+      }
+
+      .loader-tip kbd {
+        padding: 1px 6px;
+        border: 1px solid #e3dccb;
+        border-bottom-width: 3px;
+        border-radius: 6px;
+        background: #fff;
+        font:
+          700 12px system-ui,
+          sans-serif;
+      }
+
+      /* shown instead of the bar when the island can't be shown at all */
+      #loader[data-state='error'] .loader-text,
+      #loader[data-state='error'] .loader-bar,
+      #loader[data-state='error'] .loader-tip,
+      #loader:not([data-state='error']) .loader-error {
+        display: none;
+      }
+
+      #loader[data-state='error'] .loader-island {
+        animation: none;
+      }
+
+      .loader-error {
+        max-width: 300px;
+        margin: 8px 0 0;
+        color: #a2482a;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .loader-island,
+        .loader-bar span {
+          animation: none;
+        }
+
+        .loader-bar span {
+          width: 100%;
+          opacity: 0.5;
+        }
+      }
+    </style>
   </head>
   <body>
+    <!-- loading screen, removed by the app when the island is ready (src/ui/loader.ts) -->
+    <div id="loader" role="status" aria-live="polite">
+      <div class="loader-card">
+        <img class="loader-island" src="/favicon.svg" alt="" />
+        <p class="loader-title">Andrija Slović</p>
+        <p class="loader-text">Getting the island ready…</p>
+        <div class="loader-bar"><span></span></div>
+        <p class="loader-tip">Walk up to a station and press <kbd>E</kbd></p>
+        <p class="loader-error">
+          Your browser couldn't start 3D graphics (WebGL), so the island can't be shown. Try another
+          browser, or turn on hardware acceleration in its settings.
+        </p>
+      </div>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
