@@ -2,6 +2,9 @@ import type { ComponentType } from 'react';
 
 export type ProjectKind = 'web' | 'console' | 'iot' | 'ml' | 'backend';
 
+// icons available for projects: one per kind, plus extra ones a project can pick
+export type ProjectIconName = ProjectKind | 'factory';
+
 export interface ProjectMeta {
   slug: string; // unique identifier, e.g. 'kv-storage-engine'
   title: string;
@@ -12,6 +15,7 @@ export interface ProjectMeta {
   links: { github?: string; demo?: string };
   position: [number, number, number]; // station position on the map
   accent: string; // the project's own color, used in its panel
+  icon?: ProjectIconName; // defaults to the icon of the project's kind
   highlights?: string[]; // a few short points about what was built
 }
 

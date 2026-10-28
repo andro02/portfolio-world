@@ -2,7 +2,7 @@ import { useEffect, useState, type CSSProperties } from 'react';
 import { KIND_LABELS } from '../projects/kinds';
 import { getProject } from '../projects/registry';
 import { useGameStore } from '../store/useGameStore';
-import { ProjectKindIcon } from './ProjectKindIcon';
+import { ProjectIcon } from './ProjectIcon';
 import { ProjectShowcase } from './ProjectShowcase';
 
 // arrow leaving a box: the link opens another website in a new tab
@@ -66,7 +66,7 @@ export function ProjectPanel() {
       >
         <header className="sheet-header">
           <div className="sheet-icon">
-            <ProjectKindIcon kind={meta.kind} />
+            <ProjectIcon name={meta.icon ?? meta.kind} />
           </div>
           <div className="sheet-heading">
             <p className="sheet-kind">

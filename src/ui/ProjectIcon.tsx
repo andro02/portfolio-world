@@ -1,7 +1,7 @@
-import type { ProjectKind } from '../projects/types';
+import type { ProjectIconName } from '../projects/types';
 
-// simple line icon for each kind of project
-const PATHS: Record<ProjectKind, string[]> = {
+// simple line icons for projects
+const PATHS: Record<ProjectIconName, string[]> = {
   // browser window
   web: ['M3 5h18v14H3z', 'M3 9h18', 'M6 7h.01M8.5 7h.01'],
   // terminal prompt
@@ -15,9 +15,16 @@ const PATHS: Record<ProjectKind, string[]> = {
   ],
   // cloud
   backend: ['M7 18h10a4 4 0 0 0 .5-7.97A6 6 0 0 0 6.1 10.5 3.75 3.75 0 0 0 7 18z'],
+  // factory hall with a sawtooth roof and a smoking chimney
+  factory: [
+    'M2 21h20',
+    'M3.5 21v-9l5 3.2V12l5 3.2V12l3 2V5h3.5v16',
+    'M6.5 18h2M11.5 18h2',
+    'M17.5 2.3c.7-.8 1.9-.8 2.6 0',
+  ],
 };
 
-export function ProjectKindIcon({ kind }: { kind: ProjectKind }) {
+export function ProjectIcon({ name }: { name: ProjectIconName }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -28,7 +35,7 @@ export function ProjectKindIcon({ kind }: { kind: ProjectKind }) {
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      {PATHS[kind].map((d) => (
+      {PATHS[name].map((d) => (
         <path key={d} d={d} />
       ))}
     </svg>
