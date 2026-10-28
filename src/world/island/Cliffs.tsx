@@ -5,7 +5,7 @@ import { projects } from '../../projects/registry';
 import { GRASS_END, shoreRadius, terrainHeight } from './islandShape';
 import { distanceToPaths } from './paths';
 import { between, createRandom } from './random';
-import { applySeeThrough } from '../seeThrough';
+import { registerOccluder } from '../occluders';
 
 const CLIFF_COLORS = ['#8f8a80', '#a29c90', '#7f7a71'];
 const START_RADIUS = 7; // first pillars stand a little away from the plaza
@@ -93,17 +93,14 @@ export function Cliffs() {
         // the collider wraps the exact shape of the pillar ("hull")
         <RigidBody key={index} type="fixed" colliders="hull" position={pillar.position}>
           <mesh
+            ref={registerOccluder}
             geometry={geometries[pillar.variant]}
             scale={[pillar.radius, pillar.height, pillar.radius]}
             rotation={[0, pillar.rotation, 0]}
             castShadow
             receiveShadow
           >
-            <meshStandardMaterial
-              color={pillar.color}
-              flatShading
-              onBeforeCompile={applySeeThrough}
-            />
+            <meshStandardMaterial color={pillar.color} flatShading />
           </mesh>
         </RigidBody>
       ))}

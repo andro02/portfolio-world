@@ -1,5 +1,6 @@
 import { Stations } from '../stations/Stations';
 import { Environment } from './Environment';
+import { OccluderFade } from './OccluderFade';
 import { ShadowCasters } from './ShadowCasters';
 import { Cliffs } from './island/Cliffs';
 import { IslandBoundary } from './island/IslandBoundary';
@@ -20,6 +21,7 @@ export function World() {
       <Cliffs />
       <Stations />
       <Player />
+      <OccluderFade />
     </>
   );
 }

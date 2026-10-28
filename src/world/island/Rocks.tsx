@@ -5,7 +5,7 @@ import { projects } from '../../projects/registry';
 import { distanceToPaths } from './paths';
 import { between, createRandom } from './random';
 import { shoreRadius, terrainHeight } from './islandShape';
-import { applySeeThrough } from '../seeThrough';
+import { registerOccluder } from '../occluders';
 
 const ROCK_COUNT = 45;
 const ROCK_COLORS = ['#9a978d', '#b3afa3', '#86837a', '#a8a294'];
@@ -83,17 +83,14 @@ export function Rocks() {
       {rocks.map((rock, index) => {
         const mesh = (
           <mesh
+            ref={registerOccluder}
             geometry={geometries[rock.variant]}
             rotation={rock.rotation}
             scale={rock.scale}
             castShadow
             receiveShadow
           >
-            <meshStandardMaterial
-              color={rock.color}
-              flatShading
-              onBeforeCompile={applySeeThrough}
-            />
+            <meshStandardMaterial color={rock.color} flatShading />
           </mesh>
         );
 
