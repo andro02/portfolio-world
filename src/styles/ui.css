@@ -697,3 +697,256 @@
     animation-duration: 0.01s !important;
   }
 }
+
+/* ---- panel themes: a decoration per project, set with "theme" in meta.ts ---- */
+
+/* layer for the theme's pattern, behind the header content, on the right side
+   (fading out towards the title so the text stays easy to read) */
+.sheet[data-theme] .sheet-header::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 30%;
+  pointer-events: none;
+}
+
+.sheet[data-theme] .sheet-header > * {
+  position: relative;
+}
+
+.sheet-icon {
+  position: relative;
+}
+
+/* the patterns are masks: the drawing decides where the color shows, the color
+   itself comes from the project's accent */
+.sheet[data-theme='circuit'] .sheet-header::before,
+.sheet[data-theme='route'] .sheet-header::before,
+.sheet[data-theme='cloud'] .sheet-header::before {
+  background: var(--accent);
+  opacity: 0.32;
+}
+
+.sheet[data-theme] .sheet-header {
+  background: var(--accent-soft);
+}
+
+/* ---- circuit: traces of a circuit board (smart home) ---- */
+
+.sheet[data-theme='circuit'] .sheet-header::before {
+  -webkit-mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'%3E %3Cpath d='M0 20h28l12 12h30l10-10h40'/%3E%3Cpath d='M0 62h18l10-10h22l12 12h58'/%3E%3Cpath d='M70 32v18'/%3E%3Cpath d='M40 32V8'/%3E%3Cpath d='M96 22v24'/%3E %3Ccircle cx='40' cy='8' r='3'/%3E%3Ccircle cx='70' cy='52' r='3' fill='black'/%3E%3Ccircle cx='28' cy='20' r='2.5' fill='black'/%3E%3Ccircle cx='96' cy='48' r='3'/%3E%3Ccircle cx='62' cy='64' r='2.5' fill='black'/%3E %3C/svg%3E")
+      0 0 / 120px 80px repeat,
+    linear-gradient(to right, transparent, #000 45%);
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'%3E %3Cpath d='M0 20h28l12 12h30l10-10h40'/%3E%3Cpath d='M0 62h18l10-10h22l12 12h58'/%3E%3Cpath d='M70 32v18'/%3E%3Cpath d='M40 32V8'/%3E%3Cpath d='M96 22v24'/%3E %3Ccircle cx='40' cy='8' r='3'/%3E%3Ccircle cx='70' cy='52' r='3' fill='black'/%3E%3Ccircle cx='28' cy='20' r='2.5' fill='black'/%3E%3Ccircle cx='96' cy='48' r='3'/%3E%3Ccircle cx='62' cy='64' r='2.5' fill='black'/%3E %3C/svg%3E")
+      0 0 / 120px 80px repeat,
+    linear-gradient(to right, transparent, #000 45%);
+  /* show the drawing only where the fade allows it */
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+/* ---- route: a tracked vehicle route on a map (fleet monitoring) ---- */
+
+.sheet[data-theme='route'] .sheet-header::before {
+  inset: 8px 0 8px 32%;
+  opacity: 0.42;
+  -webkit-mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 110' fill='none' stroke='black' stroke-linecap='round'%3E %3Cpath d='M20 90 C 90 92, 100 40, 165 42 S 255 92, 315 60 S 370 22, 392 26' stroke-width='3' stroke-dasharray='2 9'/%3E %3Ccircle cx='20' cy='90' r='6' stroke-width='3'/%3E%3Ccircle cx='165' cy='42' r='5' fill='black' stroke='none'/%3E %3Ccircle cx='315' cy='60' r='5' fill='black' stroke='none'/%3E%3Cpath d='M392 26v-22l14 6-14 6' stroke-width='3' stroke-linejoin='round'/%3E %3C/svg%3E")
+      center / 100% 100% no-repeat,
+    linear-gradient(to right, transparent, #000 30%);
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 110' fill='none' stroke='black' stroke-linecap='round'%3E %3Cpath d='M20 90 C 90 92, 100 40, 165 42 S 255 92, 315 60 S 370 22, 392 26' stroke-width='3' stroke-dasharray='2 9'/%3E %3Ccircle cx='20' cy='90' r='6' stroke-width='3'/%3E%3Ccircle cx='165' cy='42' r='5' fill='black' stroke='none'/%3E %3Ccircle cx='315' cy='60' r='5' fill='black' stroke='none'/%3E%3Cpath d='M392 26v-22l14 6-14 6' stroke-width='3' stroke-linejoin='round'/%3E %3C/svg%3E")
+      center / 100% 100% no-repeat,
+    linear-gradient(to right, transparent, #000 30%);
+  /* show the drawing only where the fade allows it */
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+/* ---- cloud: connected cloud services (serverless) ---- */
+
+.sheet[data-theme='cloud'] .sheet-header::before {
+  inset: 6px 0 6px 30%;
+  -webkit-mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 110' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E %3Cpath d='M112 60 L190 34 L262 70 L340 30' stroke-dasharray='1 7'/%3E%3Cpath d='M190 34 L230 92 L262 70' stroke-dasharray='1 7'/%3E %3Ccircle cx='112' cy='60' r='6' fill='black' stroke='none'/%3E%3Ccircle cx='190' cy='34' r='6' fill='black' stroke='none'/%3E %3Ccircle cx='262' cy='70' r='6' fill='black' stroke='none'/%3E%3Ccircle cx='230' cy='92' r='5' fill='black' stroke='none'/%3E%3Ccircle cx='340' cy='30' r='6' fill='black' stroke='none'/%3E %3Cpath d='M300 96h46a13 13 0 0 0 1-26 19 19 0 0 0-36-3 11 11 0 0 0-11 29z'/%3E %3Cpath d='M40 40h30a9 9 0 0 0 .5-18 13 13 0 0 0-25-2 7.5 7.5 0 0 0-5.5 20z'/%3E %3C/svg%3E")
+      center / 100% 100% no-repeat,
+    linear-gradient(to right, transparent, #000 30%);
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 110' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E %3Cpath d='M112 60 L190 34 L262 70 L340 30' stroke-dasharray='1 7'/%3E%3Cpath d='M190 34 L230 92 L262 70' stroke-dasharray='1 7'/%3E %3Ccircle cx='112' cy='60' r='6' fill='black' stroke='none'/%3E%3Ccircle cx='190' cy='34' r='6' fill='black' stroke='none'/%3E %3Ccircle cx='262' cy='70' r='6' fill='black' stroke='none'/%3E%3Ccircle cx='230' cy='92' r='5' fill='black' stroke='none'/%3E%3Ccircle cx='340' cy='30' r='6' fill='black' stroke='none'/%3E %3Cpath d='M300 96h46a13 13 0 0 0 1-26 19 19 0 0 0-36-3 11 11 0 0 0-11 29z'/%3E %3Cpath d='M40 40h30a9 9 0 0 0 .5-18 13 13 0 0 0-25-2 7.5 7.5 0 0 0-5.5 20z'/%3E %3C/svg%3E")
+      center / 100% 100% no-repeat,
+    linear-gradient(to right, transparent, #000 30%);
+  /* show the drawing only where the fade allows it */
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+/* ---- detection: contour lines of a map and a detection box (landfill) ---- */
+
+.sheet[data-theme='detection'] .sheet-header::before {
+  background: repeating-radial-gradient(
+    circle at 82% 10%,
+    transparent 0 11px,
+    color-mix(in srgb, var(--accent) 30%, transparent) 11px 12.5px
+  );
+  -webkit-mask: linear-gradient(to right, transparent, #000 50%);
+  mask: linear-gradient(to right, transparent, #000 50%);
+}
+
+/* corner brackets around the icon, drawn with eight small gradients */
+.sheet-detection {
+  position: absolute;
+  inset: -7px;
+  --corner: var(--accent-strong);
+  background:
+    linear-gradient(var(--corner), var(--corner)) top left / 11px 2px,
+    linear-gradient(var(--corner), var(--corner)) top left / 2px 11px,
+    linear-gradient(var(--corner), var(--corner)) top right / 11px 2px,
+    linear-gradient(var(--corner), var(--corner)) top right / 2px 11px,
+    linear-gradient(var(--corner), var(--corner)) bottom left / 11px 2px,
+    linear-gradient(var(--corner), var(--corner)) bottom left / 2px 11px,
+    linear-gradient(var(--corner), var(--corner)) bottom right / 11px 2px,
+    linear-gradient(var(--corner), var(--corner)) bottom right / 2px 11px;
+  background-repeat: no-repeat;
+}
+
+.sheet-detection-label {
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 0;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: var(--accent-strong);
+  color: #fff;
+  font:
+    700 9px/1.6 ui-monospace,
+    'Cascadia Code',
+    Consolas,
+    monospace;
+  white-space: nowrap;
+}
+
+/* the label needs room above the icon */
+.sheet[data-theme='detection'] .sheet-header {
+  padding-top: 32px;
+}
+
+/* ---- terminal: the panel looks like a terminal window (key-value engine) ---- */
+
+.sheet[data-theme='terminal'] {
+  --mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  border-radius: 12px;
+}
+
+.sheet-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 14px;
+  background: #15171c;
+  color: #8b919c;
+  font:
+    12px/1.4 ui-monospace,
+    'Cascadia Code',
+    Consolas,
+    monospace;
+}
+
+.sheet-titlebar-dots {
+  display: flex;
+  gap: 7px;
+}
+
+.sheet-titlebar-dots i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #e8675c;
+}
+
+.sheet-titlebar-dots i:nth-child(2) {
+  background: #e9b949;
+}
+
+.sheet-titlebar-dots i:nth-child(3) {
+  background: #5fbf66;
+}
+
+.sheet[data-theme='terminal'] .sheet-header {
+  background: #1d2027;
+  border-bottom-color: #2a2e37;
+}
+
+/* faint horizontal lines like an old screen */
+.sheet[data-theme='terminal'] .sheet-header::before {
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.025) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+.sheet[data-theme='terminal'] .sheet-icon {
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.sheet[data-theme='terminal'] .sheet-kind {
+  color: color-mix(in srgb, var(--accent) 65%, #fff);
+  font-family: var(--mono);
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.sheet[data-theme='terminal'] .sheet-kind::before {
+  content: '$ ';
+  color: #8b919c;
+}
+
+.sheet[data-theme='terminal'] .sheet-heading h2 {
+  color: #f1f3f5;
+}
+
+.sheet[data-theme='terminal'] .sheet-close {
+  background: rgba(255, 255, 255, 0.08);
+  color: #c9ced6;
+}
+
+.sheet[data-theme='terminal'] .sheet-close:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* technologies look like code tokens */
+.sheet[data-theme='terminal'] .sheet-tech li {
+  border-radius: 5px;
+  font-family: var(--mono);
+  font-weight: 500;
+}
+
+/* list items start with a prompt sign instead of dots on a line */
+.sheet[data-theme='terminal'] .sheet-features {
+  padding-left: 0;
+  border-left: none;
+}
+
+.sheet[data-theme='terminal'] .sheet-features li::before {
+  content: '›';
+  top: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--accent);
+  font:
+    700 16px/1.35 ui-monospace,
+    'Cascadia Code',
+    Consolas,
+    monospace;
+}
+
+.sheet[data-theme='terminal'] .sheet-button {
+  border-radius: 8px;
+}

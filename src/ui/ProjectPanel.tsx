@@ -14,6 +14,11 @@ function ExternalLinkIcon() {
   );
 }
 
+// last part of a repository link, e.g. "nosql-storage-engine"
+function repositoryName(url: string | undefined): string | undefined {
+  return url?.split('/').filter(Boolean).pop();
+}
+
 const CLOSE_ANIMATION_MS = 200; // keep in sync with the panel-out animation in ui.css
 
 export function ProjectPanel() {
@@ -59,14 +64,34 @@ export function ProjectPanel() {
       <article
         className="sheet"
         data-showcase={hasShowcase}
+        // decorative theme of the panel, styled in ui.css (sheet themes)
+        data-theme={meta.theme}
         // the project's color is available to the CSS as var(--accent)
         style={{ '--accent': meta.accent } as CSSProperties}
         onClick={(event) => event.stopPropagation()}
         aria-label={meta.title}
       >
+        {meta.theme === 'terminal' && (
+          // title bar of a terminal window
+          <div className="sheet-titlebar" aria-hidden="true">
+            <span className="sheet-titlebar-dots">
+              <i />
+              <i />
+              <i />
+            </span>
+            <span>~/{repositoryName(meta.links.github) ?? meta.slug}</span>
+          </div>
+        )}
+
         <header className="sheet-header">
           <div className="sheet-icon">
             <ProjectIcon name={meta.icon ?? meta.kind} />
+            {meta.theme === 'detection' && (
+              // frame and label like an object found by the detection model
+              <span className="sheet-detection" aria-hidden="true">
+                <span className="sheet-detection-label">landfill 0.94</span>
+              </span>
+            )}
           </div>
           <div className="sheet-heading">
             <p className="sheet-kind">

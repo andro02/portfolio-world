@@ -11,6 +11,7 @@ export const kvStorageEngine: ProjectMeta = {
   links: { github: 'https://github.com/andro02/nosql-storage-engine' },
   position: [-17.1, 0, -5.6],
   accent: '#1a9c8f',
+  theme: 'terminal',
   highlights: [
     'Write-ahead log, memtable (B-tree or skip list) and flushes to SSTables',
     'SSTable index, summary and Bloom filter files, checked with a Merkle tree',

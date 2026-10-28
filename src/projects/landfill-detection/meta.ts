@@ -12,6 +12,7 @@ export const landfillDetection: ProjectMeta = {
   position: [0, 0, -18],
   accent: '#3e9b5b',
   icon: 'factory',
+  theme: 'detection',
   highlights: [
     'YOLO11m detects landfills in orthophoto imagery, SAM estimates their area',
     'Waste volume, mass and methane emissions estimated with the IPCC methodology',

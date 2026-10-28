@@ -5,6 +5,9 @@ export type ProjectKind = 'web' | 'console' | 'iot' | 'ml' | 'backend';
 // icons available for projects: one per kind, plus extra ones a project can pick
 export type ProjectIconName = ProjectKind | 'factory';
 
+// decorative style of a project's panel, matching what the project is about
+export type PanelTheme = 'terminal' | 'detection' | 'circuit' | 'route' | 'cloud';
+
 export interface ProjectMeta {
   slug: string; // unique identifier, e.g. 'kv-storage-engine'
   title: string;
@@ -16,6 +19,7 @@ export interface ProjectMeta {
   position: [number, number, number]; // station position on the map
   accent: string; // the project's own color, used in its panel
   icon?: ProjectIconName; // defaults to the icon of the project's kind
+  theme?: PanelTheme; // panels without a theme get the plain design
   highlights?: string[]; // a few short points about what was built
 }
 
