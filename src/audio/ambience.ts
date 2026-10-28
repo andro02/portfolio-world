@@ -3,7 +3,8 @@ import { createNoise, filter, gain, startLoop, wobble } from './nodes';
 
 // Sound of the island, made in the browser with the Web Audio API instead of
 // loaded from audio files: calm background music (music.ts) and soft ambient
-// sounds of water, each its own layer, so the mix can follow the player.
+// sounds (water, a keyboard at the KV engine's station), each its own layer,
+// so the mix can follow the player.
 //
 // Web Audio works as a graph of nodes: sources (noise, oscillators) are
 // connected through filters and volume controls ("gain") to the speakers. A
@@ -16,15 +17,16 @@ import { createNoise, filter, gain, startLoop, wobble } from './nodes';
 // Browsers only allow sound after the visitor has clicked, tapped or pressed
 // a key on the page, so the engine is created on the first such interaction.
 
-export type Layer = 'waves' | 'waterfall' | 'river' | 'fountain';
+export type Layer = 'waves' | 'waterfall' | 'river' | 'fountain' | 'typing';
 
 // loudness of each layer when the player is right next to it; the water
 // stays in the background, under the music
 const MAX_LEVEL: Record<Layer, number> = {
-  waves: 0.35,
-  waterfall: 0.16,
+  waves: 0.3,
+  waterfall: 0.1,
   river: 0.12,
-  fountain: 0.1,
+  fountain: 0.06,
+  typing: 0.22,
 };
 
 const MUSIC_LEVEL = 0.45;
@@ -40,14 +42,23 @@ interface Engine {
 let engine: Engine | null = null;
 let masterVolume = 0; // 0..1, as last asked for (also before the engine exists)
 
-// waves: each wave rolls in (the surf gets louder and brighter), breaks and
-// pulls back, then it's quiet until the next one; a steady sound would be
-// heard as wind instead
+// waves: each wave rolls in, breaks and pulls back, then it's quiet until
+// the next one. A wave on a beach is mostly a wide "shhh" in the middle
+// pitches, so it is made from pink noise with the deep rumble (heard as
+// thunder) and the sharp hiss filtered away. Only the volume follows the
+// wave: a filter opening and closing would be heard as wind.
 function startWaves(context: AudioContext, destination: AudioNode) {
-  const swell = gain(context, 0.05);
-  const tone = filter(context, 'lowpass', 300, 0.4);
-  startLoop(context, createNoise(context, 'brown'), tone);
-  tone.connect(swell).connect(destination);
+  const wash = gain(context, 0);
+  const washLow = filter(context, 'highpass', 220, 0.5);
+  const washHigh = filter(context, 'lowpass', 1900, 0.5);
+  startLoop(context, createNoise(context, 'pink'), washLow);
+  washLow.connect(washHigh).connect(wash).connect(destination);
+
+  // the fizz of the foam running back down the sand, a moment after the break
+  const foam = gain(context, 0);
+  const foamTone = filter(context, 'bandpass', 2600, 0.6);
+  startLoop(context, createNoise(context, 'white'), foamTone);
+  foamTone.connect(gain(context, 0.18)).connect(foam).connect(destination);
 
   let nextWaveAt = context.currentTime + 1;
   setInterval(() => {
@@ -57,14 +68,60 @@ function startWaves(context: AudioContext, destination: AudioNode) {
     if (nextWaveAt > now + 0.6) return;
 
     const at = nextWaveAt;
-    const strength = 0.7 + Math.random() * 0.3; // waves are not all the same
-    // rolls in...
-    swell.gain.setTargetAtTime(strength, at, 0.7);
-    tone.frequency.setTargetAtTime(500 + 300 * strength, at, 0.7);
-    // ...breaks and fades out slowly
-    swell.gain.setTargetAtTime(0.05, at + 2, 1.6);
-    tone.frequency.setTargetAtTime(280, at + 2, 1.8);
-    nextWaveAt = at + 6 + Math.random() * 4;
+    const strength = 0.65 + Math.random() * 0.35; // waves are not all the same
+    // rolls in slowly...
+    wash.gain.setTargetAtTime(strength, at, 0.9);
+    // ...breaks, and the water slides back for a few seconds
+    wash.gain.setTargetAtTime(0.03, at + 2.4, 1.5);
+    foam.gain.setTargetAtTime(strength, at + 2, 0.4);
+    foam.gain.setTargetAtTime(0, at + 2.6, 1.4);
+    nextWaveAt = at + 7 + Math.random() * 4;
+  }, 200);
+}
+
+// someone typing on a keyboard: short soft clicks in bursts, like a command
+// being typed, a slightly louder one for Enter, then a pause
+function startTyping(context: AudioContext, destination: AudioNode) {
+  // one key click: a few milliseconds of noise that dies away very fast
+  const length = Math.floor(context.sampleRate * 0.035);
+  const click = context.createBuffer(1, length, context.sampleRate);
+  const data = click.getChannelData(0);
+  for (let i = 0; i < length; i++) {
+    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (context.sampleRate * 0.004));
+  }
+
+  // a plastic, muffled click rather than a sharp tick
+  const tone = filter(context, 'bandpass', 2200, 0.8);
+  const soften = filter(context, 'lowpass', 4500);
+  tone.connect(soften).connect(destination);
+
+  const press = (at: number, pitch: number, loudness: number) => {
+    const source = context.createBufferSource();
+    source.buffer = click;
+    source.playbackRate.value = pitch; // a little different for every key
+    const level = gain(context, loudness);
+    source.connect(level).connect(tone);
+    source.start(at);
+  };
+
+  let nextKeyAt = context.currentTime + 1;
+  let keysLeft = 0; // keys left in the current word or command
+  setInterval(() => {
+    if (context.state !== 'running') return;
+    const now = context.currentTime;
+    if (nextKeyAt < now - 1) nextKeyAt = now + 0.3;
+
+    while (nextKeyAt < now + 0.6) {
+      if (keysLeft === 0) keysLeft = 5 + Math.floor(Math.random() * 14);
+      keysLeft -= 1;
+      if (keysLeft > 0) {
+        press(nextKeyAt, 0.85 + Math.random() * 0.4, 0.5 + Math.random() * 0.5);
+        nextKeyAt += 0.07 + Math.random() * 0.12;
+      } else {
+        press(nextKeyAt, 0.65, 1); // Enter
+        nextKeyAt += 0.9 + Math.random() * 2; // reading the answer
+      }
+    }
   }, 200);
 }
 
@@ -89,12 +146,14 @@ function createEngine(): Engine {
     waterfall: makeOutput(),
     river: makeOutput(),
     fountain: makeOutput(),
+    typing: makeOutput(),
   };
 
   const pink = createNoise(context, 'pink');
   const brown = createNoise(context, 'brown');
 
   startWaves(context, layers.waves.pan);
+  startTyping(context, layers.typing.pan);
 
   // waterfall: a soft, steady rush with a low rumble underneath
   {
@@ -158,7 +217,7 @@ export function setAmbienceVolume(volume: number) {
   }
 }
 
-// how loud one water layer is (0..1) and where it comes from (-1 left .. 1 right)
+// how loud one layer is (0..1) and where it comes from (-1 left .. 1 right)
 export function setLayer(layer: Layer, level: number, pan = 0) {
   if (!engine) return;
   const { context, layers } = engine;

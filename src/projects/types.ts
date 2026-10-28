@@ -31,9 +31,13 @@ export interface StationModelProps {
 // custom 3D model of a station; it is placed facing the path (local +z points
 // towards the plaza) and must stay within about 3 x 3 units, adding its own
 // colliders for the parts the player shouldn't walk through
+// sound heard near a station (see audio/ambience.ts)
+export type StationSound = 'typing';
+
 export interface StationDesign {
   Model: ComponentType<StationModelProps>;
   labelHeight: number; // height of the floating title above the ground
+  sound?: StationSound;
 }
 
 export interface ProjectDefinition {

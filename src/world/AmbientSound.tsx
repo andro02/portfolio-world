@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { setAmbienceVolume, setLayer, startAmbience } from '../audio/ambience';
+import { projects } from '../projects/registry';
 import { useGameStore } from '../store/useGameStore';
 import { POND, distanceToStream } from './decor/waterfallLayout';
 import { shoreDistance, smoothstep } from './island/islandShape';
@@ -14,6 +15,11 @@ import { playerWorldPosition } from './player/playerState';
 // right on the screen are always the same directions on the island).
 
 const UPDATE_EVERY = 0.1; // seconds; the volumes glide between updates anyway
+
+// stations where someone is typing on a keyboard
+const TYPING_STATIONS = projects
+  .filter(({ station }) => station?.sound === 'typing')
+  .map(({ meta }) => meta.position);
 
 // 1 within `near` of a source, 0 beyond `far`, smooth in between
 function closeness(distance: number, near: number, far: number) {
@@ -62,6 +68,14 @@ export function AmbientSound() {
     setLayer('waterfall', closeness(toPond, 3, 16), panFor(POND.x - x, 12));
 
     setLayer('river', closeness(distanceToStream(x, z), 0.5, 7));
+
+    // typing: heard only right at the station
+    let nearestTyping = { distance: Infinity, dx: 0 };
+    for (const [stationX, , stationZ] of TYPING_STATIONS) {
+      const distance = Math.hypot(stationX - x, stationZ - z);
+      if (distance < nearestTyping.distance) nearestTyping = { distance, dx: stationX - x };
+    }
+    setLayer('typing', closeness(nearestTyping.distance, 2.5, 8), panFor(nearestTyping.dx, 6));
 
     // the fountain stands in the middle of the island, at (0, 0)
     setLayer('fountain', closeness(Math.hypot(x, z), 2.5, 9), panFor(-x, 6));
