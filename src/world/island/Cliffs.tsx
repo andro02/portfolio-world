@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
-import { CylinderCollider, RigidBody } from '@react-three/rapier';
+import { RigidBody } from '@react-three/rapier';
 import { CylinderGeometry } from 'three';
 import { projects } from '../../projects/registry';
 import { GRASS_END, shoreRadius, terrainHeight } from './islandShape';
 import { distanceToPaths } from './paths';
 import { between, createRandom } from './random';
+import { applySeeThrough } from '../seeThrough';
 
 const CLIFF_COLORS = ['#8f8a80', '#a29c90', '#7f7a71'];
 const START_RADIUS = 7; // first pillars stand a little away from the plaza
@@ -89,12 +90,8 @@ export function Cliffs() {
   return (
     <>
       {pillars.map((pillar, index) => (
-        <RigidBody key={index} type="fixed" colliders={false} position={pillar.position}>
-          {/* half height and radius; the collider sits in the middle of the pillar */}
-          <CylinderCollider
-            args={[pillar.height / 2, pillar.radius * 1.15]}
-            position={[0, pillar.height / 2, 0]}
-          />
+        // the collider wraps the exact shape of the pillar ("hull")
+        <RigidBody key={index} type="fixed" colliders="hull" position={pillar.position}>
           <mesh
             geometry={geometries[pillar.variant]}
             scale={[pillar.radius, pillar.height, pillar.radius]}
@@ -102,7 +99,11 @@ export function Cliffs() {
             castShadow
             receiveShadow
           >
-            <meshStandardMaterial color={pillar.color} flatShading />
+            <meshStandardMaterial
+              color={pillar.color}
+              flatShading
+              onBeforeCompile={applySeeThrough}
+            />
           </mesh>
         </RigidBody>
       ))}

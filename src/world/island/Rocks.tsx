@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
-import { BallCollider, RigidBody } from '@react-three/rapier';
+import { RigidBody } from '@react-three/rapier';
 import { IcosahedronGeometry } from 'three';
 import { projects } from '../../projects/registry';
 import { distanceToPaths } from './paths';
 import { between, createRandom } from './random';
 import { shoreRadius, terrainHeight } from './islandShape';
+import { applySeeThrough } from '../seeThrough';
 
 const ROCK_COUNT = 45;
 const ROCK_COLORS = ['#9a978d', '#b3afa3', '#86837a', '#a8a294'];
@@ -88,14 +89,18 @@ export function Rocks() {
             castShadow
             receiveShadow
           >
-            <meshStandardMaterial color={rock.color} flatShading />
+            <meshStandardMaterial
+              color={rock.color}
+              flatShading
+              onBeforeCompile={applySeeThrough}
+            />
           </mesh>
         );
 
-        // only bigger rocks block the player; a sphere is a close enough shape
+        // only bigger rocks block the player; "hull" makes a collider that wraps
+        // the rock's exact shape, like a sheet of plastic wrapped around it
         return rock.scale >= COLLIDER_MIN_SCALE ? (
-          <RigidBody key={index} type="fixed" colliders={false} position={rock.position}>
-            <BallCollider args={[rock.scale * 0.75]} />
+          <RigidBody key={index} type="fixed" colliders="hull" position={rock.position}>
             {mesh}
           </RigidBody>
         ) : (
