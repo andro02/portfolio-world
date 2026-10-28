@@ -25,93 +25,6 @@
     sans-serif;
 }
 
-.panel-backdrop {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 16px;
-  background: rgba(0, 0, 0, 0.35);
-}
-
-.project-panel {
-  position: relative;
-  width: min(560px, 100%);
-  max-height: 85vh;
-  overflow-y: auto;
-  padding: 28px;
-  border-radius: 16px;
-  background: #fffdf8;
-  color: #1d1d1d;
-  font:
-    16px/1.6 system-ui,
-    sans-serif;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.project-panel h2 {
-  margin: 0 0 12px;
-  font-size: 26px;
-  line-height: 1.2;
-}
-
-.panel-year {
-  margin: 0 0 4px;
-  color: #8a8578;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.panel-close {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  border: none;
-  background: none;
-  font-size: 28px;
-  line-height: 1;
-  cursor: pointer;
-  color: #8a8578;
-}
-
-.panel-tech {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 16px 0;
-  padding: 0;
-  list-style: none;
-}
-
-.panel-tech li {
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: #efe9da;
-  font-size: 13px;
-}
-
-.panel-links {
-  display: flex;
-  gap: 16px;
-}
-
-.panel-links a {
-  color: #c2571a;
-  font-weight: 600;
-}
-
-.project-panel.has-showcase {
-  width: min(960px, 100%);
-}
-
-.panel-showcase {
-  margin-top: 24px;
-}
-
-.panel-loading {
-  color: #8a8578;
-}
-
 .terminal {
   height: 340px;
   overflow-y: auto;
@@ -155,4 +68,885 @@
   background: transparent;
   color: inherit;
   font: inherit;
+}
+
+/* ---- controls legend (bottom left) and reset zoom button (bottom right) ---- */
+
+.controls-legend,
+.legend-toggle,
+.reset-view {
+  position: fixed;
+  bottom: 20px;
+  color: #3b3426;
+  font:
+    14px/1.4 system-ui,
+    sans-serif;
+  background: rgba(255, 253, 248, 0.88);
+  box-shadow: 0 6px 24px rgba(40, 30, 10, 0.18);
+  backdrop-filter: blur(6px);
+}
+
+/* the whole group fades out while a project panel is open */
+.controls {
+  transition: opacity 0.25s ease;
+}
+
+.controls[data-hidden='true'] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.controls-legend {
+  left: 20px;
+  padding: 12px 14px 10px;
+  border-radius: 14px;
+  user-select: none;
+  /* grows out of / shrinks into the bottom left corner, where the toggle is */
+  transform-origin: bottom left;
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1),
+    opacity 0.2s ease;
+}
+
+.controls-legend[data-open='false'] {
+  transform: scale(0.4);
+  opacity: 0;
+  /* shrinking uses a plain ease, the bounce is only for opening */
+  transition:
+    transform 0.25s ease-in,
+    opacity 0.2s ease-in 0.05s;
+}
+
+.controls-legend header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.controls-legend h3 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a7f68;
+}
+
+.controls-legend header button {
+  border: none;
+  border-radius: 6px;
+  background: none;
+  padding: 0 4px;
+  color: #8a7f68;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
+}
+
+.controls-legend header button:hover {
+  color: #3b3426;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.controls-legend dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.legend-row dt,
+.legend-combo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legend-row dt {
+  gap: 8px;
+}
+
+.legend-row dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+.legend-or {
+  margin-right: 4px;
+  font-size: 12px;
+  color: #a39a85;
+}
+
+.controls-legend kbd {
+  min-width: 22px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid #e3dccb;
+  border-bottom-width: 3px;
+  background: #fff;
+  color: #3b3426;
+  font:
+    700 12px/1.3 system-ui,
+    sans-serif;
+  text-align: center;
+}
+
+.legend-toggle {
+  left: 20px;
+  transform-origin: bottom left;
+  /* appears after the legend has mostly shrunk away */
+  transition:
+    transform 0.25s ease 0.12s,
+    opacity 0.2s ease 0.12s,
+    background-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.legend-toggle[data-open='false'] {
+  transform: scale(0.6);
+  opacity: 0;
+  transition:
+    transform 0.15s ease,
+    opacity 0.1s ease;
+}
+
+/* shared look of the round "pill" buttons (Controls, Reset zoom) */
+.legend-toggle,
+.reset-view {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px 0 12px;
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.legend-toggle:hover,
+.reset-view:hover {
+  background: #fff;
+  box-shadow: 0 8px 28px rgba(40, 30, 10, 0.24);
+}
+
+.legend-toggle:active,
+.reset-view:active {
+  background: #f3eee2;
+}
+
+/* visible outline only when focused with the keyboard, not after a click */
+.legend-toggle:focus-visible,
+.reset-view:focus-visible,
+.controls-legend header button:focus-visible {
+  outline: 2px solid #c2571a;
+  outline-offset: 2px;
+}
+
+.legend-toggle svg,
+.reset-view svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.reset-view {
+  right: 20px;
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1),
+    opacity 0.2s ease,
+    background-color 0.15s,
+    box-shadow 0.15s;
+}
+
+/* slides down out of view while the camera is at the default zoom */
+.reset-view[data-visible='false'] {
+  transform: translateY(16px) scale(0.9);
+  opacity: 0;
+  transition:
+    transform 0.2s ease-in,
+    opacity 0.15s ease-in;
+}
+
+/* no movement for people who asked their system to reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .controls-legend,
+  .legend-toggle,
+  .reset-view {
+    transform: none !important;
+    transition-property: opacity !important;
+  }
+}
+
+/* keyboard controls make no sense on touch screens */
+@media (hover: none) {
+  .controls {
+    display: none;
+  }
+}
+
+/* shown in place of a project demo that hasn't finished downloading; same
+   height as the terminal, so the panel doesn't jump when the demo appears */
+.showcase-placeholder {
+  display: grid;
+  place-items: center;
+  height: 340px;
+  border-radius: 10px;
+  background: #f3eee2;
+  color: #8a7f68;
+  font-size: 14px;
+}
+
+/* ---- station name tags floating above the stations ---- */
+
+.station-label {
+  position: relative;
+  /* the label sits above its anchor point, which the pointer below touches */
+  transform: translate(-50%, calc(-100% - 10px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 14px 7px;
+  border-radius: 12px;
+  background: rgba(255, 253, 248, 0.92);
+  box-shadow: 0 6px 20px rgba(40, 30, 10, 0.2);
+  color: #3b3426;
+  font-family: system-ui, sans-serif;
+  white-space: nowrap;
+  user-select: none;
+  transition:
+    background-color 0.25s,
+    transform 0.25s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* small pointer under the label, aimed at the station */
+.station-label::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: inherit;
+  border-radius: 0 0 3px 0;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.station-label-kind {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8a7f68;
+}
+
+.station-label-title {
+  font-size: 14px;
+  font-weight: 650;
+}
+
+/* the station the player stands at */
+.station-label[data-highlighted='true'] {
+  background: #ffd166;
+  transform: translate(-50%, calc(-100% - 16px)) scale(1.08);
+}
+
+.station-label[data-highlighted='true'] .station-label-kind {
+  color: #7a5b12;
+}
+
+/* the HTML interface (panel, legend, buttons) stays above the station labels */
+.interact-prompt,
+.controls,
+.reset-view {
+  position: fixed;
+  z-index: 10;
+}
+
+/* ---- project panel ("sheet") ---- */
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(30, 24, 12, 0.4);
+  animation: backdrop-in 0.25s ease both;
+}
+
+.sheet {
+  /* darker and lighter versions of the project's color */
+  --accent-strong: color-mix(in srgb, var(--accent) 75%, #1d1a14);
+  --accent-soft: color-mix(in srgb, var(--accent) 14%, #fffdf8);
+
+  display: flex;
+  flex-direction: column;
+  width: min(600px, 100%);
+  max-height: min(88vh, 760px);
+  overflow: hidden;
+  border-radius: 20px;
+  background: #fffdf8;
+  color: #3b3426;
+  font:
+    15px/1.6 system-ui,
+    sans-serif;
+  box-shadow: 0 24px 70px rgba(30, 20, 5, 0.35);
+  animation: panel-in 0.35s cubic-bezier(0.34, 1.3, 0.64, 1) both;
+}
+
+.sheet[data-showcase='true'] {
+  width: min(1040px, 100%);
+}
+
+.sheet-backdrop[data-state='closing'] {
+  animation: backdrop-out 0.2s ease both;
+}
+
+.sheet-backdrop[data-state='closing'] .sheet {
+  animation: panel-out 0.2s ease-in both;
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes backdrop-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+}
+
+@keyframes panel-out {
+  to {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+}
+
+/* header tinted with the project's color, with soft circles as decoration */
+.sheet-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 24px;
+  background:
+    radial-gradient(
+      circle at 92% -20%,
+      color-mix(in srgb, var(--accent) 22%, transparent) 0 90px,
+      transparent 91px
+    ),
+    radial-gradient(
+      circle at 78% 130%,
+      color-mix(in srgb, var(--accent) 12%, transparent) 0 70px,
+      transparent 71px
+    ),
+    var(--accent-soft);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.sheet-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.sheet-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.sheet-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.sheet-kind {
+  margin: 0 0 2px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+}
+
+.sheet-heading h2 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.2;
+  color: #2a2419;
+}
+
+.sheet-close {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  align-self: flex-start;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 253, 248, 0.8);
+  color: #5c5240;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    transform 0.15s;
+}
+
+.sheet-close:hover {
+  background: #fff;
+  transform: rotate(90deg);
+}
+
+.sheet-close svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.sheet-body {
+  display: grid;
+  gap: 24px;
+  padding: 22px 24px 24px;
+  overflow-y: auto;
+}
+
+/* info on the left, the interactive demo on the right */
+.sheet[data-showcase='true'] .sheet-body {
+  grid-template-columns: minmax(260px, 340px) 1fr;
+}
+
+/* the demo fills the height of the info column (at least 340px) and scrolls
+   inside itself instead of making the panel taller */
+.sheet-showcase {
+  position: relative;
+  min-height: 340px;
+}
+
+.sheet-showcase > * {
+  position: absolute;
+  inset: 0;
+  height: auto;
+}
+
+.sheet-summary {
+  margin: 0;
+}
+
+.sheet-info h3 {
+  margin: 20px 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a7f68;
+}
+
+.sheet-features {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0 0 0 2px;
+  list-style: none;
+  /* thin line in the project's color along the list, with a dot per item */
+  border-left: 2px solid color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.sheet-features li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.sheet-features li::before {
+  content: '';
+  position: absolute;
+  top: 0.45em;
+  left: -8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  /* ring in the panel's background color, so the dot sits "on" the line */
+  box-shadow: 0 0 0 3px #fffdf8;
+}
+
+.sheet-tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sheet-tech li {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sheet-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.sheet-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px 0 17px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 35%, transparent);
+  transition:
+    background-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.sheet-button:hover {
+  background: var(--accent-strong);
+}
+
+.sheet-button.secondary {
+  background: transparent;
+  color: var(--accent-strong);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.sheet-button.secondary:hover {
+  background: var(--accent-soft);
+}
+
+.sheet-button svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.85;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sheet-close:focus-visible,
+.sheet-button:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+/* narrow screens: everything in one column */
+@media (max-width: 760px) {
+  .sheet[data-showcase='true'] .sheet-body {
+    grid-template-columns: 1fr;
+  }
+
+  .sheet-heading h2 {
+    font-size: 21px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet,
+  .sheet-backdrop {
+    animation-duration: 0.01s !important;
+  }
+}
+
+/* ---- panel themes: a decoration per project, set with "theme" in meta.ts ---- */
+
+/* layer for the theme's pattern, behind the header content, on the right side
+   (fading out towards the title so the text stays easy to read) */
+.sheet[data-theme] .sheet-header::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 30%;
+  pointer-events: none;
+}
+
+.sheet[data-theme] .sheet-header > * {
+  position: relative;
+}
+
+.sheet-icon {
+  position: relative;
+}
+
+/* the patterns are masks: the drawing decides where the color shows, the color
+   itself comes from the project's accent */
+.sheet[data-theme='circuit'] .sheet-header::before,
+.sheet[data-theme='route'] .sheet-header::before,
+.sheet[data-theme='cloud'] .sheet-header::before {
+  background: var(--accent);
+  opacity: 0.32;
+}
+
+.sheet[data-theme] .sheet-header {
+  background: var(--accent-soft);
+}
+
+/* ---- circuit: traces of a circuit board (smart home) ---- */
+
+.sheet[data-theme='circuit'] .sheet-header::before {
+  -webkit-mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'%3E %3Cpath d='M0 20h28l12 12h30l10-10h40'/%3E%3Cpath d='M0 62h18l10-10h22l12 12h58'/%3E%3Cpath d='M70 32v18'/%3E%3Cpath d='M40 32V8'/%3E%3Cpath d='M96 22v24'/%3E %3Ccircle cx='40' cy='8' r='3'/%3E%3Ccircle cx='70' cy='52' r='3' fill='black'/%3E%3Ccircle cx='28' cy='20' r='2.5' fill='black'/%3E%3Ccircle cx='96' cy='48' r='3'/%3E%3Ccircle cx='62' cy='64' r='2.5' fill='black'/%3E %3C/svg%3E")
+      0 0 / 120px 80px repeat,
+    linear-gradient(to right, transparent, #000 45%);
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'%3E %3Cpath d='M0 20h28l12 12h30l10-10h40'/%3E%3Cpath d='M0 62h18l10-10h22l12 12h58'/%3E%3Cpath d='M70 32v18'/%3E%3Cpath d='M40 32V8'/%3E%3Cpath d='M96 22v24'/%3E %3Ccircle cx='40' cy='8' r='3'/%3E%3Ccircle cx='70' cy='52' r='3' fill='black'/%3E%3Ccircle cx='28' cy='20' r='2.5' fill='black'/%3E%3Ccircle cx='96' cy='48' r='3'/%3E%3Ccircle cx='62' cy='64' r='2.5' fill='black'/%3E %3C/svg%3E")
+      0 0 / 120px 80px repeat,
+    linear-gradient(to right, transparent, #000 45%);
+  /* show the drawing only where the fade allows it */
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+/* ---- route: a tracked vehicle route on a map (fleet monitoring) ---- */
+
+.sheet[data-theme='route'] .sheet-header::before {
+  inset: 8px 0 8px 32%;
+  opacity: 0.42;
+  -webkit-mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 110' fill='none' stroke='black' stroke-linecap='round'%3E %3Cpath d='M20 90 C 90 92, 100 40, 165 42 S 255 92, 315 60 S 370 22, 392 26' stroke-width='3' stroke-dasharray='2 9'/%3E %3Ccircle cx='20' cy='90' r='6' stroke-width='3'/%3E%3Ccircle cx='165' cy='42' r='5' fill='black' stroke='none'/%3E %3Ccircle cx='315' cy='60' r='5' fill='black' stroke='none'/%3E%3Cpath d='M392 26v-22l14 6-14 6' stroke-width='3' stroke-linejoin='round'/%3E %3C/svg%3E")
+      center / 100% 100% no-repeat,
+    linear-gradient(to right, transparent, #000 30%);
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 110' fill='none' stroke='black' stroke-linecap='round'%3E %3Cpath d='M20 90 C 90 92, 100 40, 165 42 S 255 92, 315 60 S 370 22, 392 26' stroke-width='3' stroke-dasharray='2 9'/%3E %3Ccircle cx='20' cy='90' r='6' stroke-width='3'/%3E%3Ccircle cx='165' cy='42' r='5' fill='black' stroke='none'/%3E %3Ccircle cx='315' cy='60' r='5' fill='black' stroke='none'/%3E%3Cpath d='M392 26v-22l14 6-14 6' stroke-width='3' stroke-linejoin='round'/%3E %3C/svg%3E")
+      center / 100% 100% no-repeat,
+    linear-gradient(to right, transparent, #000 30%);
+  /* show the drawing only where the fade allows it */
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+/* ---- cloud: connected cloud services (serverless) ---- */
+
+.sheet[data-theme='cloud'] .sheet-header::before {
+  inset: 6px 0 6px 30%;
+  -webkit-mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 110' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E %3Cpath d='M112 60 L190 34 L262 70 L340 30' stroke-dasharray='1 7'/%3E%3Cpath d='M190 34 L230 92 L262 70' stroke-dasharray='1 7'/%3E %3Ccircle cx='112' cy='60' r='6' fill='black' stroke='none'/%3E%3Ccircle cx='190' cy='34' r='6' fill='black' stroke='none'/%3E %3Ccircle cx='262' cy='70' r='6' fill='black' stroke='none'/%3E%3Ccircle cx='230' cy='92' r='5' fill='black' stroke='none'/%3E%3Ccircle cx='340' cy='30' r='6' fill='black' stroke='none'/%3E %3Cpath d='M300 96h46a13 13 0 0 0 1-26 19 19 0 0 0-36-3 11 11 0 0 0-11 29z'/%3E %3Cpath d='M40 40h30a9 9 0 0 0 .5-18 13 13 0 0 0-25-2 7.5 7.5 0 0 0-5.5 20z'/%3E %3C/svg%3E")
+      center / 100% 100% no-repeat,
+    linear-gradient(to right, transparent, #000 30%);
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 110' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E %3Cpath d='M112 60 L190 34 L262 70 L340 30' stroke-dasharray='1 7'/%3E%3Cpath d='M190 34 L230 92 L262 70' stroke-dasharray='1 7'/%3E %3Ccircle cx='112' cy='60' r='6' fill='black' stroke='none'/%3E%3Ccircle cx='190' cy='34' r='6' fill='black' stroke='none'/%3E %3Ccircle cx='262' cy='70' r='6' fill='black' stroke='none'/%3E%3Ccircle cx='230' cy='92' r='5' fill='black' stroke='none'/%3E%3Ccircle cx='340' cy='30' r='6' fill='black' stroke='none'/%3E %3Cpath d='M300 96h46a13 13 0 0 0 1-26 19 19 0 0 0-36-3 11 11 0 0 0-11 29z'/%3E %3Cpath d='M40 40h30a9 9 0 0 0 .5-18 13 13 0 0 0-25-2 7.5 7.5 0 0 0-5.5 20z'/%3E %3C/svg%3E")
+      center / 100% 100% no-repeat,
+    linear-gradient(to right, transparent, #000 30%);
+  /* show the drawing only where the fade allows it */
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+/* ---- detection: contour lines of a map and a detection box (landfill) ---- */
+
+.sheet[data-theme='detection'] .sheet-header::before {
+  background: repeating-radial-gradient(
+    circle at 82% 10%,
+    transparent 0 11px,
+    color-mix(in srgb, var(--accent) 30%, transparent) 11px 12.5px
+  );
+  -webkit-mask: linear-gradient(to right, transparent, #000 50%);
+  mask: linear-gradient(to right, transparent, #000 50%);
+}
+
+/* corner brackets around the icon, drawn with eight small gradients */
+.sheet-detection {
+  position: absolute;
+  inset: -7px;
+  --corner: var(--accent-strong);
+  background:
+    linear-gradient(var(--corner), var(--corner)) top left / 11px 2px,
+    linear-gradient(var(--corner), var(--corner)) top left / 2px 11px,
+    linear-gradient(var(--corner), var(--corner)) top right / 11px 2px,
+    linear-gradient(var(--corner), var(--corner)) top right / 2px 11px,
+    linear-gradient(var(--corner), var(--corner)) bottom left / 11px 2px,
+    linear-gradient(var(--corner), var(--corner)) bottom left / 2px 11px,
+    linear-gradient(var(--corner), var(--corner)) bottom right / 11px 2px,
+    linear-gradient(var(--corner), var(--corner)) bottom right / 2px 11px;
+  background-repeat: no-repeat;
+}
+
+.sheet-detection-label {
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 0;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: var(--accent-strong);
+  color: #fff;
+  font:
+    700 9px/1.6 ui-monospace,
+    'Cascadia Code',
+    Consolas,
+    monospace;
+  white-space: nowrap;
+}
+
+/* the label needs room above the icon */
+.sheet[data-theme='detection'] .sheet-header {
+  padding-top: 32px;
+}
+
+/* ---- terminal: the panel looks like a terminal window (key-value engine) ---- */
+
+.sheet[data-theme='terminal'] {
+  --mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  border-radius: 12px;
+}
+
+.sheet-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 14px;
+  background: #15171c;
+  color: #8b919c;
+  font:
+    12px/1.4 ui-monospace,
+    'Cascadia Code',
+    Consolas,
+    monospace;
+}
+
+.sheet-titlebar-dots {
+  display: flex;
+  gap: 7px;
+}
+
+.sheet-titlebar-dots i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #e8675c;
+}
+
+.sheet-titlebar-dots i:nth-child(2) {
+  background: #e9b949;
+}
+
+.sheet-titlebar-dots i:nth-child(3) {
+  background: #5fbf66;
+}
+
+.sheet[data-theme='terminal'] .sheet-header {
+  background: #1d2027;
+  border-bottom-color: #2a2e37;
+}
+
+/* faint horizontal lines like an old screen */
+.sheet[data-theme='terminal'] .sheet-header::before {
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.025) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+.sheet[data-theme='terminal'] .sheet-icon {
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.sheet[data-theme='terminal'] .sheet-kind {
+  color: color-mix(in srgb, var(--accent) 65%, #fff);
+  font-family: var(--mono);
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.sheet[data-theme='terminal'] .sheet-kind::before {
+  content: '$ ';
+  color: #8b919c;
+}
+
+.sheet[data-theme='terminal'] .sheet-heading h2 {
+  color: #f1f3f5;
+}
+
+.sheet[data-theme='terminal'] .sheet-close {
+  background: rgba(255, 255, 255, 0.08);
+  color: #c9ced6;
+}
+
+.sheet[data-theme='terminal'] .sheet-close:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* technologies look like code tokens */
+.sheet[data-theme='terminal'] .sheet-tech li {
+  border-radius: 5px;
+  font-family: var(--mono);
+  font-weight: 500;
+}
+
+/* list items start with a prompt sign instead of dots on a line */
+.sheet[data-theme='terminal'] .sheet-features {
+  padding-left: 0;
+  border-left: none;
+}
+
+.sheet[data-theme='terminal'] .sheet-features li::before {
+  content: '›';
+  top: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--accent);
+  font:
+    700 16px/1.35 ui-monospace,
+    'Cascadia Code',
+    Consolas,
+    monospace;
+}
+
+.sheet[data-theme='terminal'] .sheet-button {
+  border-radius: 8px;
 }

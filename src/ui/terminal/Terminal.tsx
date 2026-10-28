@@ -26,16 +26,18 @@ export function Terminal({ onCommand, welcome = [], prompt = '>>> ' }: TerminalP
   const history = useRef<string[]>([]);
   const historyIndex = useRef(0);
   const inputRef = useRef<HTMLInputElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // keep the newest line in view
+  // keep the newest line in view; only the terminal itself scrolls, not the
+  // panel around it
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: 'end' });
+    const container = containerRef.current;
+    if (container) container.scrollTop = container.scrollHeight;
   }, [lines]);
 
-  // focus the input as soon as the terminal appears
+  // focus the input as soon as the terminal appears, without scrolling the page to it
   useEffect(() => {
-    inputRef.current?.focus();
+    inputRef.current?.focus({ preventScroll: true });
   }, []);
 
   function append(kind: Line['kind'], text: string) {
@@ -92,7 +94,11 @@ export function Terminal({ onCommand, welcome = [], prompt = '>>> ' }: TerminalP
 
   return (
     // clicking anywhere in the terminal focuses the input
-    <div className="terminal" onClick={() => inputRef.current?.focus()}>
+    <div
+      ref={containerRef}
+      className="terminal"
+      onClick={() => inputRef.current?.focus({ preventScroll: true })}
+    >
       {lines.map((line) => (
         <pre key={line.id} className={`terminal-line terminal-${line.kind}`}>
           {line.kind === 'input' ? prompt + line.text : line.text}
@@ -112,8 +118,6 @@ export function Terminal({ onCommand, welcome = [], prompt = '>>> ' }: TerminalP
           aria-label="Terminal input"
         />
       </form>
-
-      <div ref={bottomRef} />
     </div>
   );
 }

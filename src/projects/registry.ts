@@ -1,10 +1,10 @@
 import type { ProjectDefinition } from './types';
 import { fleetMonitoring } from './fleet-monitoring/meta';
 import { kvStorageEngine } from './kv-storage-engine/meta';
+import { KvStationModel } from './kv-storage-engine/StationModel';
 import { landfillDetection } from './landfill-detection/meta';
 import { serverlessMovies } from './serverless-movies/meta';
 import { smartHomeIot } from './smart-home-iot/meta';
-import { lazy } from 'react';
 
 // single source of truth for all projects shown in the world
 export const projects: ProjectDefinition[] = [
@@ -12,7 +12,11 @@ export const projects: ProjectDefinition[] = [
   { meta: fleetMonitoring },
   { meta: smartHomeIot },
   { meta: serverlessMovies },
-  { meta: kvStorageEngine, Showcase: lazy(() => import('./kv-storage-engine/Showcase')) },
+  {
+    meta: kvStorageEngine,
+    loadShowcase: () => import('./kv-storage-engine/Showcase'),
+    station: { Model: KvStationModel, labelHeight: 2.6 },
+  },
 ];
 
 export function getProject(slug: string): ProjectDefinition | undefined {
