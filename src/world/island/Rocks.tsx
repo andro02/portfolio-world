@@ -6,6 +6,7 @@ import { distanceToPaths } from './paths';
 import { between, createRandom } from './random';
 import { shoreRadius, terrainHeight } from './islandShape';
 import { registerOccluder } from '../occluders';
+import { distanceToWaterfall } from '../decor/waterfallLayout';
 
 const ROCK_COUNT = 45;
 const ROCK_COLORS = ['#9a978d', '#b3afa3', '#86837a', '#a8a294'];
@@ -42,7 +43,8 @@ function isFreeSpot(x: number, z: number): boolean {
   const awayFromStations = projects.every(
     ({ meta }) => Math.hypot(x - meta.position[0], z - meta.position[2]) > 4.5,
   );
-  return awayFromPaths && awayFromStations;
+  const awayFromWaterfall = distanceToWaterfall(x, z) > 1.5;
+  return awayFromPaths && awayFromStations && awayFromWaterfall;
 }
 
 function placeRocks(): Rock[] {
