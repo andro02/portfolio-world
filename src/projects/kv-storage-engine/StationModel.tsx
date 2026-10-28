@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import { CuboidCollider } from '@react-three/rapier';
 import type { Group, Mesh, MeshStandardMaterial } from 'three';
+import { MONO_FONT } from '../../fonts';
 import type { StationModelProps } from '../types';
 
 // Station of the key-value storage engine: a terminal facing the path, a tower
@@ -78,6 +79,7 @@ function Terminal({ highlighted }: StationModelProps) {
             <Text
               key={line}
               position={[0, -index * 0.1, 0]}
+              font={MONO_FONT}
               fontSize={0.065}
               anchorX="left"
               anchorY="middle"

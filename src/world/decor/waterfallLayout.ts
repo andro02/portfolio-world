@@ -33,7 +33,7 @@ export const FACE_ROTATION = Math.atan2(FACE.x, FACE.z);
 const SIDE = { x: FACE.z, z: -FACE.x };
 
 // a point `along` in front of the tall rock and `side` to the side of it
-export function frontPoint(along: number, side = 0) {
+function frontPoint(along: number, side = 0) {
   return {
     x: BACK_X + FACE.x * along + SIDE.x * side,
     z: BACK_Z + FACE.z * along + SIDE.z * side,

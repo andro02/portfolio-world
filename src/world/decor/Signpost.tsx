@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Text } from '@react-three/drei';
 import { CylinderCollider, RigidBody } from '@react-three/rapier';
 import { ExtrudeGeometry, Shape } from 'three';
+import { SIGN_FONT } from '../../fonts';
 import { projects } from '../../projects/registry';
 import { terrainHeight } from '../island/islandShape';
 import { PLAZA_RADIUS } from '../island/paths';
@@ -60,6 +61,7 @@ export function Signpost() {
   // middle of the text on the board, between the post and the pointed end
   const textX = (BOARD_LENGTH - TIP_LENGTH) / 2 + 0.06;
   const textProps = {
+    font: SIGN_FONT,
     fontSize: 0.19,
     color: TEXT_COLOR,
     anchorX: 'center',
