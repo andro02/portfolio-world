@@ -384,3 +384,15 @@
     display: none;
   }
 }
+
+/* shown in place of a project demo that hasn't finished downloading; same
+   height as the terminal, so the panel doesn't jump when the demo appears */
+.showcase-placeholder {
+  display: grid;
+  place-items: center;
+  height: 340px;
+  border-radius: 10px;
+  background: #f3eee2;
+  color: #8a7f68;
+  font-size: 14px;
+}

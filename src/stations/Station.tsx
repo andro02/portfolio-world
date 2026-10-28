@@ -1,5 +1,6 @@
 import { Billboard, Text } from '@react-three/drei';
 import { CuboidCollider, RigidBody } from '@react-three/rapier';
+import { preloadShowcase } from '../projects/showcaseLoader';
 import type { ProjectDefinition } from '../projects/types';
 import { useGameStore } from '../store/useGameStore';
 import { terrainHeight } from '../world/island/islandShape';
@@ -40,7 +41,10 @@ export function Station({ project }: StationProps) {
           args={[3, 1.5, 3]}
           position={[0, 1.5, 0]}
           onIntersectionEnter={({ other }) => {
-            if (other.rigidBodyObject?.name === 'player') enterStation(meta.slug);
+            if (other.rigidBodyObject?.name !== 'player') return;
+            enterStation(meta.slug);
+            // the player will probably open this project: get its demo ready
+            preloadShowcase(project);
           }}
           onIntersectionExit={({ other }) => {
             if (other.rigidBodyObject?.name === 'player') leaveStation(meta.slug);

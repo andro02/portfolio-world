@@ -1,4 +1,3 @@
-import { lazy } from 'react';
 import type { ProjectDefinition } from './types';
 import { fleetMonitoring } from './fleet-monitoring/meta';
 import { kvStorageEngine } from './kv-storage-engine/meta';
@@ -15,7 +14,7 @@ export const projects: ProjectDefinition[] = [
   { meta: serverlessMovies },
   {
     meta: kvStorageEngine,
-    Showcase: lazy(() => import('./kv-storage-engine/Showcase')),
+    loadShowcase: () => import('./kv-storage-engine/Showcase'),
     station: { Model: KvStationModel, labelHeight: 2.6 },
   },
 ];

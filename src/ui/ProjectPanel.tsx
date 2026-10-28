@@ -1,6 +1,7 @@
-import { Suspense, useEffect } from 'react';
+import { useEffect } from 'react';
 import { getProject } from '../projects/registry';
 import { useGameStore } from '../store/useGameStore';
+import { ProjectShowcase } from './ProjectShowcase';
 
 export function ProjectPanel() {
   const openProject = useGameStore((s) => s.openProject);
@@ -18,13 +19,14 @@ export function ProjectPanel() {
   const project = openProject ? getProject(openProject) : undefined;
   if (!project) return null;
 
-  const { meta, Showcase } = project;
+  const { meta } = project;
+  const hasShowcase = Boolean(project.loadShowcase);
 
   return (
     // clicking the dimmed backdrop closes the panel
     <div className="panel-backdrop" onClick={closeProject}>
       <article
-        className={Showcase ? 'project-panel has-showcase' : 'project-panel'}
+        className={hasShowcase ? 'project-panel has-showcase' : 'project-panel'}
         onClick={(event) => event.stopPropagation()}
       >
         <button className="panel-close" onClick={closeProject} aria-label="Close">
@@ -54,12 +56,9 @@ export function ProjectPanel() {
           )}
         </div>
 
-        {Showcase && (
+        {hasShowcase && (
           <section className="panel-showcase">
-            {/* shown while the showcase code is being downloaded */}
-            <Suspense fallback={<p className="panel-loading">Loading…</p>}>
-              <Showcase />
-            </Suspense>
+            <ProjectShowcase key={meta.slug} project={project} />
           </section>
         )}
       </article>

@@ -1,4 +1,4 @@
-import type { ComponentType, LazyExoticComponent } from 'react';
+import type { ComponentType } from 'react';
 
 export type ProjectKind = 'web' | 'console' | 'iot' | 'ml' | 'backend';
 
@@ -27,9 +27,10 @@ export interface StationDesign {
 
 export interface ProjectDefinition {
   meta: ProjectMeta;
-  // interactive showcase, lazy-loaded the first time its panel is opened
+  // loads the interactive showcase; its code is downloaded separately, ahead of
+  // time (see showcaseLoader.ts), so the main page stays small
   // (optional so projects can be added before their showcase is built)
-  Showcase?: LazyExoticComponent<ComponentType>;
+  loadShowcase?: () => Promise<{ default: ComponentType }>;
   // custom station on the map; projects without one get a plain pedestal
   station?: StationDesign;
 }
