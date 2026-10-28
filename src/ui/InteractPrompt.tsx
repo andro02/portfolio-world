@@ -28,8 +28,9 @@ export function InteractPrompt() {
   const project = getProject(nearbyProject);
 
   return (
-    <div className="interact-prompt">
+    // a button, so it can also be tapped on touch screens (see touch.css)
+    <button className="interact-prompt" onClick={openNearbyProject}>
       <kbd>E</kbd> Open {project?.meta.title}
-    </div>
+    </button>
   );
 }

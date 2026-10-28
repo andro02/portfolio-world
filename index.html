@@ -2,9 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover: use the whole screen on phones with rounded corners -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-    <title>Andrija Slović - Portfolio</title>
+    <title>Andrija Slović — Portfolio</title>
     <!-- short text shown under the title in search results -->
     <meta
       name="description"
@@ -143,6 +144,21 @@
         color: #a2482a;
       }
 
+      /* the tip mentions the E key, or tapping on touch screens */
+      .tip-touch {
+        display: none;
+      }
+
+      @media (hover: none) and (pointer: coarse) {
+        .tip-keyboard {
+          display: none;
+        }
+
+        .tip-touch {
+          display: inline;
+        }
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .loader-island,
         .loader-bar span {
@@ -164,7 +180,10 @@
         <p class="loader-title">Andrija Slović</p>
         <p class="loader-text">Getting the island ready…</p>
         <div class="loader-bar"><span></span></div>
-        <p class="loader-tip">Walk up to a station and press <kbd>E</kbd></p>
+        <p class="loader-tip">
+          <span class="tip-keyboard">Walk up to a station and press <kbd>E</kbd></span>
+          <span class="tip-touch">Walk up to a station and tap Open</span>
+        </p>
         <p class="loader-error">
           Your browser couldn't start 3D graphics (WebGL), so the island can't be shown. Try another
           browser, or turn on hardware acceleration in its settings.

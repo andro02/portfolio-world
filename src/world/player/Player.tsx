@@ -9,12 +9,14 @@ import {
   useRapier,
   type RapierRigidBody,
 } from '@react-three/rapier';
-import { MathUtils, Quaternion, Vector3, type Group } from 'three';
+import { MathUtils, Quaternion, Vector3, type Group, type PerspectiveCamera } from 'three';
 import type { Control } from './controls';
 import { useGameStore } from '../../store/useGameStore';
 import { DEFAULT_ZOOM } from './cameraZoom';
 import { FoxModel } from './FoxModel';
 import { playerMotion, playerWorldPosition } from './playerState';
+import { touchInput } from './touchInput';
+import { usePinchZoom } from './usePinchZoom';
 import { useScrollZoom } from './useScrollZoom';
 import { FOUNTAIN_RADIUS } from '../decor/plazaLayout';
 import { streamFlowAt } from '../decor/waterfallLayout';
@@ -35,6 +37,11 @@ const RIVER_SPEED = 2.2;
 const CAMERA_CLOSE = new Vector3(0, 1.8, 4.2);
 const CAMERA_FAR = new Vector3(0, 16, 18);
 const KEY_ZOOM_SPEED = 0.8; // zoom change per second while + or - is held
+// The camera's field of view is measured up and down. On a phone held upright
+// the screen is narrow, so with the same field of view very little of the
+// island fits from side to side; a wider one shows about as much as in landscape.
+const LANDSCAPE_FOV = 50;
+const PORTRAIT_FOV = 68;
 
 // The fox is long, so one round collider doesn't fit it. It gets three:
 // - an upright capsule in the middle, which stands on the ground
@@ -79,6 +86,7 @@ export function Player() {
   const zoom = useRef(DEFAULT_ZOOM); // current zoom, eased towards the one in the store
   const heading = useRef(START_HEADING); // direction the fox is facing, around the y axis
   useScrollZoom();
+  usePinchZoom();
 
   useFrame((state, delta) => {
     if (!body.current || !model.current) return;
@@ -94,10 +102,13 @@ export function Player() {
       store.setZoom(store.zoom + (zoomIn ? -1 : 1) * KEY_ZOOM_SPEED * delta);
     }
 
-    // build movement direction from pressed keys (x: left/right, z: forward/backward)
+    // build movement direction from pressed keys (x: left/right, z: forward/backward);
+    // without keys, from the on-screen joystick, whose push (0..1) also sets the speed
     if (isPanelOpen) direction.set(0, 0, 0);
     else direction.set(Number(right) - Number(left), 0, Number(backward) - Number(forward));
-    if (direction.lengthSq() > 0) direction.normalize().multiplyScalar(SPEED);
+    if (direction.lengthSq() > 0) direction.normalize();
+    else if (!isPanelOpen) direction.set(touchInput.x, 0, touchInput.z).clampLength(0, 1);
+    direction.multiplyScalar(SPEED);
 
     // turn the body (and with it the colliders and the model) towards the
     // direction of movement, smoothly and the short way around
@@ -123,7 +134,7 @@ export function Player() {
     );
     // not while already moving up, so holding space doesn't extend the jump
     const grounded = groundHit !== null && velocity.y < 1;
-    const canJump = jump && grounded && !isPanelOpen;
+    const canJump = (jump || touchInput.jump) && grounded && !isPanelOpen;
     const verticalVelocity = canJump ? JUMP_VELOCITY : velocity.y;
 
     // standing in the river: the water carries the fox downstream
@@ -146,6 +157,14 @@ export function Player() {
     // while the model is interpolated between them and moves smoothly
     model.current.getWorldPosition(playerPosition);
     playerWorldPosition.copy(playerPosition);
+
+    // wider field of view on screens held upright
+    const camera = state.camera as PerspectiveCamera;
+    const fov = state.size.width < state.size.height ? PORTRAIT_FOV : LANDSCAPE_FOV;
+    if (camera.fov !== fov) {
+      camera.fov = fov;
+      camera.updateProjectionMatrix();
+    }
 
     // ease the zoom towards the level picked by the player
     zoom.current += (useGameStore.getState().zoom - zoom.current) * (1 - Math.exp(-8 * delta));

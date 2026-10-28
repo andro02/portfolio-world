@@ -1,0 +1,117 @@
+/* ---- touch screens: joystick, jump button, tappable prompt ---- */
+
+/* hidden on devices with a mouse or a touchpad */
+.touch-controls {
+  display: none;
+}
+
+/* phones and tablets: no hovering, and a finger as the pointer */
+@media (hover: none) and (pointer: coarse) {
+  .touch-controls {
+    display: block;
+    transition: opacity 0.25s ease;
+  }
+
+  .touch-controls[data-hidden='true'] {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .joystick,
+  .jump-button {
+    position: fixed;
+    z-index: 10;
+    /* the browser must not scroll or zoom the page while a finger is here */
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* bottom left; env(safe-area-inset-...) keeps it clear of rounded corners
+     and the home bar on phones that have them */
+  .joystick {
+    left: max(24px, env(safe-area-inset-left));
+    bottom: max(28px, env(safe-area-inset-bottom));
+    display: grid;
+    place-items: center;
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    background: rgba(255, 253, 248, 0.35);
+    box-shadow:
+      inset 0 0 0 3px rgba(255, 253, 248, 0.75),
+      0 6px 24px rgba(40, 30, 10, 0.18);
+    backdrop-filter: blur(4px);
+  }
+
+  .joystick-knob {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255, 253, 248, 0.95);
+    box-shadow: 0 4px 14px rgba(40, 30, 10, 0.25);
+    /* springs back to the middle when the finger is lifted */
+    transition: transform 0.15s ease-out;
+  }
+
+  /* while the finger moves it, the knob follows without delay */
+  .joystick:active .joystick-knob {
+    transition: none;
+  }
+
+  .jump-button {
+    right: max(28px, env(safe-area-inset-right));
+    bottom: max(44px, env(safe-area-inset-bottom));
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 253, 248, 0.92);
+    color: #c2571a;
+    box-shadow: 0 6px 24px rgba(40, 30, 10, 0.22);
+  }
+
+  .jump-button:active {
+    background: #f3eee2;
+    transform: scale(0.94);
+  }
+
+  .jump-button svg {
+    width: 34px;
+    height: 34px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* the "open project" prompt becomes a button to tap, above the controls */
+  .interact-prompt {
+    bottom: max(180px, calc(env(safe-area-inset-bottom) + 152px));
+    padding: 13px 22px;
+    border: none;
+    font-size: 16px;
+    /* on one line, shortened with "…" if the title doesn't fit the screen */
+    max-width: calc(100vw - 32px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: auto;
+    touch-action: manipulation;
+  }
+
+  .interact-prompt kbd {
+    display: none;
+  }
+
+  /* the jump button is in the bottom right corner: reset zoom goes to the top */
+  .reset-view {
+    top: max(16px, env(safe-area-inset-top));
+    right: max(16px, env(safe-area-inset-right));
+    bottom: auto;
+  }
+}

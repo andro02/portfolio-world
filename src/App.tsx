@@ -7,6 +7,7 @@ import { InteractPrompt } from './ui/InteractPrompt';
 import { ProjectPanel } from './ui/ProjectPanel';
 import { ResetViewButton } from './ui/ResetViewButton';
 import { SceneErrorBoundary } from './ui/SceneErrorBoundary';
+import { TouchControls } from './ui/TouchControls';
 import { projects } from './projects/registry';
 import { preloadShowcase } from './projects/showcaseLoader';
 import { World } from './world/World';
@@ -42,6 +43,7 @@ export default function App() {
       <InteractPrompt />
       <ControlsLegend />
       <ResetViewButton />
+      <TouchControls />
       <ProjectPanel />
     </KeyboardControls>
   );
