@@ -25,93 +25,6 @@
     sans-serif;
 }
 
-.panel-backdrop {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 16px;
-  background: rgba(0, 0, 0, 0.35);
-}
-
-.project-panel {
-  position: relative;
-  width: min(560px, 100%);
-  max-height: 85vh;
-  overflow-y: auto;
-  padding: 28px;
-  border-radius: 16px;
-  background: #fffdf8;
-  color: #1d1d1d;
-  font:
-    16px/1.6 system-ui,
-    sans-serif;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.project-panel h2 {
-  margin: 0 0 12px;
-  font-size: 26px;
-  line-height: 1.2;
-}
-
-.panel-year {
-  margin: 0 0 4px;
-  color: #8a8578;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.panel-close {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  border: none;
-  background: none;
-  font-size: 28px;
-  line-height: 1;
-  cursor: pointer;
-  color: #8a8578;
-}
-
-.panel-tech {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 16px 0;
-  padding: 0;
-  list-style: none;
-}
-
-.panel-tech li {
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: #efe9da;
-  font-size: 13px;
-}
-
-.panel-links {
-  display: flex;
-  gap: 16px;
-}
-
-.panel-links a {
-  color: #c2571a;
-  font-weight: 600;
-}
-
-.project-panel.has-showcase {
-  width: min(960px, 100%);
-}
-
-.panel-showcase {
-  margin-top: 24px;
-}
-
-.panel-loading {
-  color: #8a8578;
-}
-
 .terminal {
   height: 340px;
   overflow-y: auto;
@@ -156,6 +69,7 @@
   color: inherit;
   font: inherit;
 }
+
 /* ---- controls legend (bottom left) and reset zoom button (bottom right) ---- */
 
 .controls-legend,
@@ -457,12 +371,12 @@
 
 /* the HTML interface (panel, legend, buttons) stays above the station labels */
 .interact-prompt,
-.panel-backdrop,
 .controls,
 .reset-view {
   position: fixed;
   z-index: 10;
 }
+
 /* ---- project panel ("sheet") ---- */
 
 .sheet-backdrop {
@@ -663,32 +577,34 @@
   color: #8a7f68;
 }
 
-.sheet-highlights {
+.sheet-features {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   margin: 0;
-  padding: 0;
+  padding: 0 0 0 2px;
   list-style: none;
+  /* thin line in the project's color along the list, with a dot per item */
+  border-left: 2px solid color-mix(in srgb, var(--accent) 28%, transparent);
 }
 
-.sheet-highlights li {
+.sheet-features li {
   position: relative;
-  padding-left: 22px;
+  padding-left: 14px;
   font-size: 14px;
   line-height: 1.5;
 }
 
-/* small check mark in the project's color */
-.sheet-highlights li::before {
+.sheet-features li::before {
   content: '';
   position: absolute;
   top: 0.45em;
-  left: 2px;
-  width: 9px;
-  height: 5px;
-  border-left: 2px solid var(--accent);
-  border-bottom: 2px solid var(--accent);
-  transform: rotate(-45deg);
+  left: -8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  /* ring in the panel's background color, so the dot sits "on" the line */
+  box-shadow: 0 0 0 3px #fffdf8;
 }
 
 .sheet-tech {

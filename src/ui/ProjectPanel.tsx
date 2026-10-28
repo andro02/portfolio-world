@@ -78,8 +78,8 @@ export function ProjectPanel() {
 
             {meta.highlights && (
               <>
-                <h3>What I built</h3>
-                <ul className="sheet-highlights">
+                <h3>Features</h3>
+                <ul className="sheet-features">
                   {meta.highlights.map((highlight) => (
                     <li key={highlight}>{highlight}</li>
                   ))}
