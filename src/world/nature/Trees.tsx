@@ -78,8 +78,10 @@ export function Trees() {
   return (
     <>
       {trees.map((tree, index) => (
+        // the whole tree is one occluder: trunk and crown fade together
         <group
           key={index}
+          ref={registerOccluder}
           position={tree.position}
           rotation={[0, tree.rotation, 0]}
           scale={tree.scale}
@@ -101,7 +103,6 @@ export function Trees() {
             position={[0, 1.4, 0]}
           >
             <mesh
-              ref={registerOccluder}
               geometry={crowns[tree.kind]}
               position={[0, tree.kind === 'round' ? 0.9 : 0.6, 0]}
               castShadow
