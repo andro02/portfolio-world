@@ -6,7 +6,8 @@ import { POND, distanceToStream } from './decor/waterfallLayout';
 import { shoreDistance, smoothstep } from './island/islandShape';
 import { playerWorldPosition } from './player/playerState';
 
-// Mixes the ambient sound (audio/ambience.ts) by where the fox is: the sea
+// Mixes the sound of the island (audio/ambience.ts) by where the fox is: the
+// music plays everywhere at the same volume, while the sea
 // gets louder towards the beach, the waterfall, the river and the fountain
 // get louder as the fox comes closer, and the waterfall and the fountain are
 // heard from their side (the camera always looks the same way, so left and
@@ -54,16 +55,16 @@ export function AmbientSound() {
 
     const { x, z } = playerWorldPosition;
 
-    // the sea: a little everywhere, loud on the beach
-    setLayer('waves', 0.15 + 0.85 * smoothstep(0.35, 0.95, shoreDistance(x, z)));
+    // the sea: faint inland, clear on the beach
+    setLayer('waves', 0.04 + 0.96 * smoothstep(0.6, 0.95, shoreDistance(x, z)));
 
     const toPond = Math.hypot(POND.x - x, POND.z - z);
-    setLayer('waterfall', closeness(toPond, 4, 30), panFor(POND.x - x, 20));
+    setLayer('waterfall', closeness(toPond, 3, 16), panFor(POND.x - x, 12));
 
-    setLayer('river', closeness(distanceToStream(x, z), 1, 14));
+    setLayer('river', closeness(distanceToStream(x, z), 0.5, 7));
 
     // the fountain stands in the middle of the island, at (0, 0)
-    setLayer('fountain', closeness(Math.hypot(x, z), 3, 16), panFor(-x, 10));
+    setLayer('fountain', closeness(Math.hypot(x, z), 2.5, 9), panFor(-x, 6));
   });
 
   return null;
