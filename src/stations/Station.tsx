@@ -1,10 +1,10 @@
-import { Billboard, Text } from '@react-three/drei';
 import { CuboidCollider, RigidBody } from '@react-three/rapier';
 import { preloadShowcase } from '../projects/showcaseLoader';
 import type { ProjectDefinition } from '../projects/types';
 import { useGameStore } from '../store/useGameStore';
 import { terrainHeight } from '../world/island/islandShape';
 import { DefaultPedestal } from './DefaultPedestal';
+import { StationLabel } from './StationLabel';
 
 interface StationProps {
   project: ProjectDefinition;
@@ -52,20 +52,7 @@ export function Station({ project }: StationProps) {
         />
       </RigidBody>
 
-      {/* title that always faces the camera */}
-      <Billboard position={[0, labelHeight, 0]}>
-        <Text
-          fontSize={0.5}
-          maxWidth={8}
-          textAlign="center"
-          anchorY="bottom"
-          color="#1d1d1d"
-          outlineWidth={0.03}
-          outlineColor="#ffffff"
-        >
-          {meta.title}
-        </Text>
-      </Billboard>
+      <StationLabel meta={meta} height={labelHeight} highlighted={isNearby} />
     </group>
   );
 }

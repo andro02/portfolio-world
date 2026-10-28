@@ -396,3 +396,70 @@
   color: #8a7f68;
   font-size: 14px;
 }
+
+/* ---- station name tags floating above the stations ---- */
+
+.station-label {
+  position: relative;
+  /* the label sits above its anchor point, which the pointer below touches */
+  transform: translate(-50%, calc(-100% - 10px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 14px 7px;
+  border-radius: 12px;
+  background: rgba(255, 253, 248, 0.92);
+  box-shadow: 0 6px 20px rgba(40, 30, 10, 0.2);
+  color: #3b3426;
+  font-family: system-ui, sans-serif;
+  white-space: nowrap;
+  user-select: none;
+  transition:
+    background-color 0.25s,
+    transform 0.25s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* small pointer under the label, aimed at the station */
+.station-label::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: inherit;
+  border-radius: 0 0 3px 0;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.station-label-kind {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8a7f68;
+}
+
+.station-label-title {
+  font-size: 14px;
+  font-weight: 650;
+}
+
+/* the station the player stands at */
+.station-label[data-highlighted='true'] {
+  background: #ffd166;
+  transform: translate(-50%, calc(-100% - 16px)) scale(1.08);
+}
+
+.station-label[data-highlighted='true'] .station-label-kind {
+  color: #7a5b12;
+}
+
+/* the HTML interface (panel, legend, buttons) stays above the station labels */
+.interact-prompt,
+.panel-backdrop,
+.controls,
+.reset-view {
+  position: fixed;
+  z-index: 10;
+}
