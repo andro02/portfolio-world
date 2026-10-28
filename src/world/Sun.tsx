@@ -63,9 +63,10 @@ export function Sun() {
         shadow-camera-far={SUN_DISTANCE + 40}
         // blur radius in shadow map pixels: softens the edges instead of stair steps
         shadow-radius={3}
-        // small offsets that prevent stripes on surfaces facing the sun; kept
-        // small so the shadow still starts right where an object meets the ground
-        shadow-bias={-0.0002}
+        // small offsets that prevent stripes and speckles on surfaces facing the
+        // sun; kept small so the shadow still starts right where an object meets
+        // the ground
+        shadow-bias={-0.001}
         shadow-normalBias={0.015}
       />
     </>

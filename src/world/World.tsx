@@ -1,5 +1,6 @@
 import { Stations } from '../stations/Stations';
 import { Environment } from './Environment';
+import { ShadowCasters } from './ShadowCasters';
 import { Cliffs } from './island/Cliffs';
 import { IslandBoundary } from './island/IslandBoundary';
 import { Rocks } from './island/Rocks';
@@ -11,6 +12,7 @@ export function World() {
   return (
     <>
       <Environment />
+      <ShadowCasters />
       <Terrain />
       <Water />
       <IslandBoundary />
