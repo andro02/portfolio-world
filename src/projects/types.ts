@@ -11,6 +11,8 @@ export interface ProjectMeta {
   tech: string[];
   links: { github?: string; demo?: string };
   position: [number, number, number]; // station position on the map
+  accent: string; // the project's own color, used in its panel
+  highlights?: string[]; // a few short points about what was built
 }
 
 export interface StationModelProps {

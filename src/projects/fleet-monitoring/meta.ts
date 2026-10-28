@@ -10,4 +10,11 @@ export const fleetMonitoring: ProjectMeta = {
   tech: ['Spring Boot', 'Angular', 'RabbitMQ', 'InfluxDB', 'PostgreSQL'],
   links: { github: 'https://github.com/andro02/smart-company-platform' },
   position: [17.1, 0, -5.6],
+  accent: '#e07b39',
+  highlights: [
+    'Management of factories, warehouses and vehicle fleets',
+    'Real-time sensor telemetry ingested through RabbitMQ',
+    'Time series in InfluxDB, business data in PostgreSQL',
+    'Spring Boot backend with an Angular frontend',
+  ],
 };

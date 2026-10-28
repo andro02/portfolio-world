@@ -10,4 +10,11 @@ export const landfillDetection: ProjectMeta = {
   tech: ['Python', 'PyTorch', 'YOLO11', 'SAM', 'Drools', 'Java'],
   links: { github: 'https://github.com/andro02/illegal-landfill-risk-system' },
   position: [0, 0, -18],
+  accent: '#3e9b5b',
+  highlights: [
+    'YOLO11m detects landfills in orthophoto imagery, SAM estimates their area',
+    'Waste volume, mass and methane emissions estimated with the IPCC methodology',
+    'Drools rules rate the risk from nearby rivers, settlements, schools and roads',
+    'Backward chaining checks remediation prerequisites, CEP spots new landfill patterns live',
+  ],
 };

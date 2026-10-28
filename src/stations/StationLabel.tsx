@@ -1,14 +1,6 @@
 import { Html } from '@react-three/drei';
-import type { ProjectKind, ProjectMeta } from '../projects/types';
-
-// short name of each kind of project, shown above the title
-const KIND_LABELS: Record<ProjectKind, string> = {
-  web: 'Web app',
-  console: 'Systems',
-  iot: 'IoT',
-  ml: 'Machine learning',
-  backend: 'Cloud backend',
-};
+import { KIND_LABELS } from '../projects/kinds';
+import type { ProjectMeta } from '../projects/types';
 
 interface StationLabelProps {
   meta: ProjectMeta;

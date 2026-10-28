@@ -10,4 +10,10 @@ export const smartHomeIot: ProjectMeta = {
   tech: ['Python', 'Raspberry Pi', 'MQTT', 'Flask', 'InfluxDB', 'Grafana'],
   links: { github: 'https://github.com/andro02/smart-home-iot-system' },
   position: [10.6, 0, 14.6],
+  accent: '#3b82c4',
+  highlights: [
+    'Independent sensor and actuator nodes on Raspberry Pi, talking over MQTT',
+    'Flask server running automation and alarm logic as a state machine',
+    'Monitoring with InfluxDB and Grafana, plus a live dashboard',
+  ],
 };
