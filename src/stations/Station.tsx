@@ -5,6 +5,7 @@ import { useGameStore } from '../store/useGameStore';
 import { terrainHeight } from '../world/island/islandShape';
 import { DefaultPedestal } from './DefaultPedestal';
 import { StationLabel } from './StationLabel';
+import { stationFacing } from './stationPlacement';
 
 interface StationProps {
   project: ProjectDefinition;
@@ -24,7 +25,7 @@ export function Station({ project }: StationProps) {
 
   // turn the model so its front (local +z) faces the plaza in the centre,
   // where the path to this station comes from
-  const facing = Math.atan2(-x, -z);
+  const facing = stationFacing(meta);
 
   const Model = station?.Model ?? DefaultPedestal;
   const labelHeight = station?.labelHeight ?? DEFAULT_LABEL_HEIGHT;

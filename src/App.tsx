@@ -5,6 +5,7 @@ import { Physics } from '@react-three/rapier';
 import { ControlsLegend } from './ui/ControlsLegend';
 import { InteractPrompt } from './ui/InteractPrompt';
 import { ProjectPanel } from './ui/ProjectPanel';
+import { ProjectsMenu } from './ui/ProjectsMenu';
 import { ResetViewButton } from './ui/ResetViewButton';
 import { SceneErrorBoundary } from './ui/SceneErrorBoundary';
 import { TouchControls } from './ui/TouchControls';
@@ -40,6 +41,7 @@ export default function App() {
       </SceneErrorBoundary>
 
       {/* HTML overlay rendered on top of the 3D canvas */}
+      <ProjectsMenu />
       <InteractPrompt />
       <ControlsLegend />
       <ResetViewButton />
