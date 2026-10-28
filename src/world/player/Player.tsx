@@ -22,6 +22,8 @@ const JUMP_VELOCITY = 5;
 const TURN_SPEED = 12;
 // at the start the fox looks away from the camera, towards the island
 const START_HEADING = Math.PI;
+// in front of the fountain in the middle of the plaza, looking at it
+const START_POSITION: [number, number, number] = [0, 1.5, 2.6];
 
 // camera position relative to the player at the two ends of the zoom range:
 // close up it is low and looks from the side, zoomed out it looks from above
@@ -151,7 +153,7 @@ export function Player() {
       name="player"
       colliders={false}
       enabledRotations={[false, false, false]}
-      position={[0, 2, 0]}
+      position={START_POSITION}
       rotation={[0, START_HEADING, 0]}
     >
       {/* no friction: movement is controlled by setting the velocity directly, and
