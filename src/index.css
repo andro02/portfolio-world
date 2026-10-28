@@ -6,3 +6,9 @@ body,
   margin: 0;
   overflow: hidden;
 }
+
+/* fingers on the 3D view move the camera (pinch to zoom); the browser must not
+   scroll or zoom the page instead */
+canvas {
+  touch-action: none;
+}
