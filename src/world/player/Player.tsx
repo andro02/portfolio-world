@@ -18,6 +18,9 @@ import { playerMotion, playerWorldPosition } from './playerState';
 import { touchInput } from './touchInput';
 import { usePinchZoom } from './usePinchZoom';
 import { useScrollZoom } from './useScrollZoom';
+import { getProject } from '../../projects/registry';
+import { inFrontOfStation } from '../../stations/stationPlacement';
+import { terrainHeight } from '../island/islandShape';
 import { FOUNTAIN_RADIUS } from '../decor/plazaLayout';
 import { streamFlowAt } from '../decor/waterfallLayout';
 
@@ -37,6 +40,9 @@ const RIVER_SPEED = 2.2;
 const CAMERA_CLOSE = new Vector3(0, 1.8, 4.2);
 const CAMERA_FAR = new Vector3(0, 16, 18);
 const KEY_ZOOM_SPEED = 0.8; // zoom change per second while + or - is held
+// teleporting to a station puts the fox this far in front of it, inside the
+// station's trigger zone, so the station notices the fox right away
+const TELEPORT_DISTANCE = 2.7;
 // The camera's field of view is measured up and down. On a phone held upright
 // the screen is narrow, so with the same field of view very little of the
 // island fits from side to side; a wider one shows about as much as in landscape.
@@ -93,6 +99,21 @@ export function Player() {
 
     const { forward, backward, left, right, jump, zoomIn, zoomOut } = getKeys();
     const store = useGameStore.getState();
+
+    // jump to a station when the projects menu asks for it; the camera keeps
+    // following smoothly, so it flies over the island to the new spot
+    if (store.teleport) {
+      const destination = getProject(store.teleport.slug);
+      if (destination) {
+        const { x, z } = inFrontOfStation(destination.meta, TELEPORT_DISTANCE);
+        body.current.setTranslation({ x, y: terrainHeight(x, z) + FEET_OFFSET + 0.3, z }, true);
+        body.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+        // look at the station
+        const [stationX, , stationZ] = destination.meta.position;
+        heading.current = Math.atan2(stationX - x, stationZ - z);
+      }
+      store.finishTeleport();
+    }
 
     // ignore movement input while a project panel is open
     const isPanelOpen = store.openProject !== null;

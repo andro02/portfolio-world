@@ -969,3 +969,174 @@
 .sheet[data-theme='terminal'] .sheet-button {
   border-radius: 8px;
 }
+
+/* ---- projects menu (top left): jump straight to a project ---- */
+
+.projects-menu {
+  position: fixed;
+  top: max(20px, env(safe-area-inset-top));
+  left: max(20px, env(safe-area-inset-left));
+  z-index: 12;
+  color: #3b3426;
+  font:
+    14px/1.4 system-ui,
+    sans-serif;
+  transition: opacity 0.25s ease;
+}
+
+/* hidden while a project panel is open */
+.projects-menu[data-hidden='true'] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* the same round "pill" look as the Controls and Reset zoom buttons */
+.projects-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px 0 12px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.88);
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  box-shadow: 0 6px 24px rgba(40, 30, 10, 0.18);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.projects-toggle:hover,
+.projects-toggle[aria-expanded='true'] {
+  background: #fff;
+  box-shadow: 0 8px 28px rgba(40, 30, 10, 0.24);
+}
+
+.projects-toggle svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: #c2571a;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* the list grows out of the button, from the top left corner */
+.projects-list {
+  position: absolute;
+  top: 50px;
+  left: 0;
+  width: min(340px, calc(100vw - 40px));
+  padding: 12px 8px 8px;
+  border-radius: 16px;
+  background: rgba(255, 253, 248, 0.96);
+  box-shadow: 0 12px 40px rgba(40, 30, 10, 0.22);
+  backdrop-filter: blur(6px);
+  transform-origin: top left;
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.3, 0.64, 1),
+    opacity 0.18s ease;
+}
+
+.projects-list[data-open='false'] {
+  transform: scale(0.85) translateY(-6px);
+  opacity: 0;
+  transition:
+    transform 0.15s ease-in,
+    opacity 0.12s ease-in;
+}
+
+.projects-list-title {
+  margin: 0 10px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a7f68;
+}
+
+.projects-list ul {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.projects-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 12px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.projects-item:hover {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.projects-item-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: var(--accent);
+  color: #fff;
+}
+
+.projects-item-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.projects-item-text {
+  display: grid;
+  min-width: 0;
+}
+
+.projects-item-title {
+  overflow: hidden;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.projects-item-kind {
+  font-size: 12px;
+  color: #8a7f68;
+}
+
+/* the station the fox is standing at */
+.projects-item[data-current='true'] .projects-item-title::after {
+  content: ' · here';
+  font-weight: 500;
+  color: color-mix(in srgb, var(--accent) 75%, #1d1a14);
+}
+
+.projects-toggle:focus-visible,
+.projects-item:focus-visible {
+  outline: 2px solid #c2571a;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .projects-list {
+    transform: none !important;
+  }
+}
