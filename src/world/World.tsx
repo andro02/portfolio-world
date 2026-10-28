@@ -2,6 +2,7 @@ import { Stations } from '../stations/Stations';
 import { Fountain } from './decor/Fountain';
 import { Signpost } from './decor/Signpost';
 import { Waterfall } from './decor/Waterfall';
+import { Nature } from './nature/Nature';
 import { AmbientSound } from './AmbientSound';
 import { Environment } from './Environment';
 import { OccluderFade } from './OccluderFade';
@@ -25,6 +26,7 @@ export function World() {
       <Rocks />
       <Cliffs />
       <Waterfall />
+      <Nature />
       <Fountain />
       <Signpost />
       <Stations />
