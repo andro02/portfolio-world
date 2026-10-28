@@ -11,6 +11,7 @@ import {
 import { Vector3, type Mesh } from 'three';
 import type { Control } from './controls';
 import { useGameStore } from '../../store/useGameStore';
+import { DEFAULT_ZOOM } from './cameraZoom';
 import { playerWorldPosition } from './playerState';
 import { useScrollZoom } from './useScrollZoom';
 
@@ -21,7 +22,7 @@ const JUMP_VELOCITY = 5;
 // close up it is low and looks from the side, zoomed out it looks from above
 const CAMERA_CLOSE = new Vector3(0, 2.2, 5);
 const CAMERA_FAR = new Vector3(0, 16, 18);
-const DEFAULT_ZOOM = 0.6; // roughly the previous fixed camera
+const KEY_ZOOM_SPEED = 0.8; // zoom change per second while + or - is held
 
 // distance from the centre of the capsule to its bottom (half height + radius)
 const FEET_OFFSET = 1;
@@ -40,16 +41,22 @@ export function Player() {
   const model = useRef<Mesh>(null);
   const [, getKeys] = useKeyboardControls<Control>();
   const { world, rapier } = useRapier();
-  const targetZoom = useScrollZoom(DEFAULT_ZOOM);
-  const zoom = useRef(DEFAULT_ZOOM);
+  const zoom = useRef(DEFAULT_ZOOM); // current zoom, eased towards the one in the store
+  useScrollZoom();
 
   useFrame((state, delta) => {
     if (!body.current || !model.current) return;
 
-    const { forward, backward, left, right, jump } = getKeys();
+    const { forward, backward, left, right, jump, zoomIn, zoomOut } = getKeys();
+    const store = useGameStore.getState();
 
     // ignore movement input while a project panel is open
-    const isPanelOpen = useGameStore.getState().openProject !== null;
+    const isPanelOpen = store.openProject !== null;
+
+    // zoom with the keyboard while + or - is held
+    if (!isPanelOpen && zoomIn !== zoomOut) {
+      store.setZoom(store.zoom + (zoomIn ? -1 : 1) * KEY_ZOOM_SPEED * delta);
+    }
 
     // build movement direction from pressed keys (x: left/right, z: forward/backward)
     if (isPanelOpen) direction.set(0, 0, 0);
@@ -84,8 +91,8 @@ export function Player() {
     model.current.getWorldPosition(playerPosition);
     playerWorldPosition.copy(playerPosition);
 
-    // ease the zoom towards the level picked with the mouse wheel
-    zoom.current += (targetZoom.current - zoom.current) * (1 - Math.exp(-8 * delta));
+    // ease the zoom towards the level picked by the player
+    zoom.current += (useGameStore.getState().zoom - zoom.current) * (1 - Math.exp(-8 * delta));
     cameraOffset.lerpVectors(CAMERA_CLOSE, CAMERA_FAR, zoom.current);
 
     // smoothly move the camera and the point it looks at (frame-rate independent lerp);

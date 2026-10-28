@@ -156,3 +156,206 @@
   color: inherit;
   font: inherit;
 }
+/* ---- controls legend (bottom left) and reset zoom button (bottom right) ---- */
+
+.controls-legend,
+.legend-toggle,
+.reset-view {
+  position: fixed;
+  bottom: 20px;
+  color: #3b3426;
+  font:
+    14px/1.4 system-ui,
+    sans-serif;
+  background: rgba(255, 253, 248, 0.88);
+  box-shadow: 0 6px 24px rgba(40, 30, 10, 0.18);
+  backdrop-filter: blur(6px);
+}
+
+/* the whole group fades out while a project panel is open */
+.controls {
+  transition: opacity 0.25s ease;
+}
+
+.controls[data-hidden='true'] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.controls-legend {
+  left: 20px;
+  padding: 12px 14px 10px;
+  border-radius: 14px;
+  user-select: none;
+  /* grows out of / shrinks into the bottom left corner, where the toggle is */
+  transform-origin: bottom left;
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1),
+    opacity 0.2s ease;
+}
+
+.controls-legend[data-open='false'] {
+  transform: scale(0.4);
+  opacity: 0;
+  /* shrinking uses a plain ease, the bounce is only for opening */
+  transition:
+    transform 0.25s ease-in,
+    opacity 0.2s ease-in 0.05s;
+}
+
+.controls-legend header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.controls-legend h3 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a7f68;
+}
+
+.controls-legend header button {
+  border: none;
+  background: none;
+  padding: 0 2px;
+  color: #8a7f68;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.controls-legend dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.legend-row dt,
+.legend-combo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legend-row dt {
+  gap: 8px;
+}
+
+.legend-row dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+.legend-or {
+  margin-right: 4px;
+  font-size: 12px;
+  color: #a39a85;
+}
+
+.controls-legend kbd {
+  min-width: 22px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid #e3dccb;
+  border-bottom-width: 3px;
+  background: #fff;
+  color: #3b3426;
+  font:
+    700 12px/1.3 system-ui,
+    sans-serif;
+  text-align: center;
+}
+
+.legend-toggle {
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transform-origin: bottom left;
+  /* appears after the legend has mostly shrunk away */
+  transition:
+    transform 0.25s ease 0.12s,
+    opacity 0.2s ease 0.12s;
+}
+
+.legend-toggle[data-open='false'] {
+  transform: scale(0.6);
+  opacity: 0;
+  transition:
+    transform 0.15s ease,
+    opacity 0.1s ease;
+}
+
+.legend-toggle svg,
+.reset-view svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.reset-view {
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px 9px 11px;
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1),
+    opacity 0.2s ease,
+    background-color 0.15s;
+}
+
+.reset-view:hover {
+  background: #fff;
+}
+
+/* slides down out of view while the camera is at the default zoom */
+.reset-view[data-visible='false'] {
+  transform: translateY(16px) scale(0.9);
+  opacity: 0;
+  transition:
+    transform 0.2s ease-in,
+    opacity 0.15s ease-in;
+}
+
+/* no movement for people who asked their system to reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .controls-legend,
+  .legend-toggle,
+  .reset-view {
+    transform: none !important;
+    transition-property: opacity !important;
+  }
+}
+
+/* keyboard controls make no sense on touch screens */
+@media (hover: none) {
+  .controls {
+    display: none;
+  }
+}
