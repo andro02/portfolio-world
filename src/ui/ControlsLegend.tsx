@@ -12,6 +12,7 @@ const ROWS: Row[] = [
   { keys: [['E']], action: 'Open project' },
   { keys: [['Scroll'], ['+', '−']], action: 'Zoom' },
   { keys: [['R']], action: 'Reset zoom' },
+  { keys: [['M']], action: 'Sound on / off' },
   { keys: [['Esc']], action: 'Close project' },
 ];
 

@@ -2,6 +2,7 @@ import { Stations } from '../stations/Stations';
 import { Fountain } from './decor/Fountain';
 import { Signpost } from './decor/Signpost';
 import { Waterfall } from './decor/Waterfall';
+import { AmbientSound } from './AmbientSound';
 import { Environment } from './Environment';
 import { OccluderFade } from './OccluderFade';
 import { SceneReady } from './SceneReady';
@@ -29,6 +30,7 @@ export function World() {
       <Stations />
       <Player />
       <OccluderFade />
+      <AmbientSound />
       {/* hides the loading screen once the world has been drawn */}
       <SceneReady />
     </>

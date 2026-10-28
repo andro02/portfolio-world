@@ -7,7 +7,8 @@ export type Control =
   | 'interact'
   | 'zoomIn'
   | 'zoomOut'
-  | 'resetView';
+  | 'resetView'
+  | 'toggleSound';
 
 // maps each action to its keys; KeyW etc. are layout-independent key codes
 export const keyboardMap: { name: Control; keys: string[] }[] = [
@@ -21,4 +22,5 @@ export const keyboardMap: { name: Control; keys: string[] }[] = [
   { name: 'zoomIn', keys: ['Equal', 'NumpadAdd'] },
   { name: 'zoomOut', keys: ['Minus', 'NumpadSubtract'] },
   { name: 'resetView', keys: ['KeyR'] },
+  { name: 'toggleSound', keys: ['KeyM'] },
 ];

@@ -970,13 +970,15 @@
   border-radius: 8px;
 }
 
-/* ---- projects menu (top left): jump straight to a project ---- */
+/* ---- top bar (top left): projects menu and sound button ---- */
 
-.projects-menu {
+.top-bar {
   position: fixed;
   top: max(20px, env(safe-area-inset-top));
   left: max(20px, env(safe-area-inset-left));
   z-index: 12;
+  display: flex;
+  gap: 10px;
   color: #3b3426;
   font:
     14px/1.4 system-ui,
@@ -985,13 +987,19 @@
 }
 
 /* hidden while a project panel is open */
-.projects-menu[data-hidden='true'] {
+.top-bar[data-hidden='true'] {
   opacity: 0;
   pointer-events: none;
 }
 
+/* the list opens below the Projects button */
+.projects-menu {
+  position: relative;
+}
+
 /* the same round "pill" look as the Controls and Reset zoom buttons */
-.projects-toggle {
+.projects-toggle,
+.sound-toggle {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1012,12 +1020,14 @@
 }
 
 .projects-toggle:hover,
-.projects-toggle[aria-expanded='true'] {
+.projects-toggle[aria-expanded='true'],
+.sound-toggle:hover {
   background: #fff;
   box-shadow: 0 8px 28px rgba(40, 30, 10, 0.24);
 }
 
-.projects-toggle svg {
+.projects-toggle svg,
+.sound-toggle svg {
   width: 20px;
   height: 20px;
   fill: none;
@@ -1025,6 +1035,17 @@
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+/* round button with just an icon */
+.sound-toggle {
+  justify-content: center;
+  width: 40px;
+  padding: 0;
+}
+
+.sound-toggle[aria-pressed='false'] svg {
+  stroke: #8a7f68;
 }
 
 /* the list grows out of the button, from the top left corner */
@@ -1130,6 +1151,7 @@
 }
 
 .projects-toggle:focus-visible,
+.sound-toggle:focus-visible,
 .projects-item:focus-visible {
   outline: 2px solid #c2571a;
   outline-offset: 2px;
