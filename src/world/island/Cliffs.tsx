@@ -4,7 +4,8 @@ import { GRASS_END, shoreRadius, terrainHeight } from './islandShape';
 import { distanceToPaths } from './paths';
 import { between, createRandom } from './random';
 import { distanceToWaterfall } from '../decor/waterfallLayout';
-import { PILLAR_VARIANTS, Pillar, type PillarProps } from './Pillar';
+import { Pillar, type PillarProps } from './Pillar';
+import { PILLAR_VARIANTS } from './pillarShape';
 
 const CLIFF_COLORS = ['#8f8a80', '#a29c90', '#7f7a71'];
 const START_RADIUS = 7; // first pillars stand a little away from the plaza

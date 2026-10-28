@@ -16,6 +16,8 @@ import { DEFAULT_ZOOM } from './cameraZoom';
 import { FoxModel } from './FoxModel';
 import { playerMotion, playerWorldPosition } from './playerState';
 import { useScrollZoom } from './useScrollZoom';
+import { FOUNTAIN_RADIUS } from '../decor/plazaLayout';
+import { streamFlowAt } from '../decor/waterfallLayout';
 
 const SPEED = 6;
 const JUMP_VELOCITY = 5;
@@ -23,7 +25,10 @@ const TURN_SPEED = 12;
 // at the start the fox looks away from the camera, towards the island
 const START_HEADING = Math.PI;
 // in front of the fountain in the middle of the plaza, looking at it
-const START_POSITION: [number, number, number] = [0, 1.5, 2.6];
+const START_POSITION: [number, number, number] = [0, 1.5, FOUNTAIN_RADIUS + 2.4];
+// speed at which the river carries the fox along; slower than walking, so
+// the fox can still walk upstream
+const RIVER_SPEED = 2.2;
 
 // camera position relative to the player at the two ends of the zoom range:
 // close up it is low and looks from the side, zoomed out it looks from above
@@ -121,7 +126,16 @@ export function Player() {
     const canJump = jump && grounded && !isPanelOpen;
     const verticalVelocity = canJump ? JUMP_VELOCITY : velocity.y;
 
-    body.current.setLinvel({ x: direction.x, y: verticalVelocity, z: direction.z }, true);
+    // standing in the river: the water carries the fox downstream
+    const { x, z } = body.current.translation();
+    const flow = grounded ? streamFlowAt(x, z) : null;
+    const carryX = flow ? flow.x * RIVER_SPEED : 0;
+    const carryZ = flow ? flow.z * RIVER_SPEED : 0;
+
+    body.current.setLinvel(
+      { x: direction.x + carryX, y: verticalVelocity, z: direction.z + carryZ },
+      true,
+    );
 
     // tell the fox model how the player moves, so it can pick its animation
     playerMotion.velocity.set(direction.x, verticalVelocity, direction.z);

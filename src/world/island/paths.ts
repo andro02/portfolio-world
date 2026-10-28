@@ -2,7 +2,7 @@ import { CatmullRomCurve3, Vector3 } from 'three';
 import { projects } from '../../projects/registry';
 import { between, createRandom } from './random';
 
-export const PLAZA_RADIUS = 3.5; // open area in the centre where the player starts
+export const PLAZA_RADIUS = 5.5; // open area in the centre with the fountain, where the player starts
 export const PATH_HALF_WIDTH = 0.9;
 const STOP_BEFORE_STATION = 2.2; // paths end in front of the station, not inside it
 
