@@ -11,6 +11,7 @@ export type PanelTheme = 'terminal' | 'detection' | 'circuit' | 'route' | 'cloud
 export interface ProjectMeta {
   slug: string; // unique identifier, e.g. 'kv-storage-engine'
   title: string;
+  shortTitle?: string; // shorter name for tight spots like the signpost; defaults to title
   year: number;
   kind: ProjectKind;
   summary: string;

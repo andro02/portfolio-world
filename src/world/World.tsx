@@ -1,4 +1,7 @@
 import { Stations } from '../stations/Stations';
+import { Fountain } from './decor/Fountain';
+import { Signpost } from './decor/Signpost';
+import { Waterfall } from './decor/Waterfall';
 import { Environment } from './Environment';
 import { OccluderFade } from './OccluderFade';
 import { ShadowCasters } from './ShadowCasters';
@@ -19,6 +22,9 @@ export function World() {
       <IslandBoundary />
       <Rocks />
       <Cliffs />
+      <Waterfall />
+      <Fountain />
+      <Signpost />
       <Stations />
       <Player />
       <OccluderFade />

@@ -3,6 +3,7 @@ import type { ProjectMeta } from '../types';
 export const fleetMonitoring: ProjectMeta = {
   slug: 'fleet-monitoring',
   title: 'Factory & Fleet Monitoring',
+  shortTitle: 'Fleet Monitoring',
   year: 2026,
   kind: 'web',
   summary:

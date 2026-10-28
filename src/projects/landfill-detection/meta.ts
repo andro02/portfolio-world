@@ -3,6 +3,7 @@ import type { ProjectMeta } from '../types';
 export const landfillDetection: ProjectMeta = {
   slug: 'landfill-detection',
   title: 'AI-Powered Landfill Detection',
+  shortTitle: 'Landfill Detection',
   year: 2026,
   kind: 'ml',
   summary:

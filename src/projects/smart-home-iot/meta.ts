@@ -3,6 +3,7 @@ import type { ProjectMeta } from '../types';
 export const smartHomeIot: ProjectMeta = {
   slug: 'smart-home-iot',
   title: 'Smart Home IoT System',
+  shortTitle: 'Smart Home',
   year: 2025,
   kind: 'iot',
   summary:

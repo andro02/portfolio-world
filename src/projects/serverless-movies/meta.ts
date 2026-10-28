@@ -3,6 +3,7 @@ import type { ProjectMeta } from '../types';
 export const serverlessMovies: ProjectMeta = {
   slug: 'serverless-movies',
   title: 'Serverless Movie Platform',
+  shortTitle: 'Movie Platform',
   year: 2024,
   kind: 'backend',
   summary:

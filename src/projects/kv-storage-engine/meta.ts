@@ -3,6 +3,7 @@ import type { ProjectMeta } from '../types';
 export const kvStorageEngine: ProjectMeta = {
   slug: 'kv-storage-engine',
   title: 'NoSQL Key-Value Engine',
+  shortTitle: 'KV Engine',
   year: 2023,
   kind: 'console',
   summary:
