@@ -2,13 +2,14 @@ import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useKeyboardControls } from '@react-three/drei';
 import {
+  BallCollider,
   CapsuleCollider,
   CoefficientCombineRule,
   RigidBody,
   useRapier,
   type RapierRigidBody,
 } from '@react-three/rapier';
-import { Vector3, type Group } from 'three';
+import { MathUtils, Quaternion, Vector3, type Group } from 'three';
 import type { Control } from './controls';
 import { useGameStore } from '../../store/useGameStore';
 import { DEFAULT_ZOOM } from './cameraZoom';
@@ -18,6 +19,9 @@ import { useScrollZoom } from './useScrollZoom';
 
 const SPEED = 6;
 const JUMP_VELOCITY = 5;
+const TURN_SPEED = 12;
+// at the start the fox looks away from the camera, towards the island
+const START_HEADING = Math.PI;
 
 // camera position relative to the player at the two ends of the zoom range:
 // close up it is low and looks from the side, zoomed out it looks from above
@@ -25,10 +29,17 @@ const CAMERA_CLOSE = new Vector3(0, 1.8, 4.2);
 const CAMERA_FAR = new Vector3(0, 16, 18);
 const KEY_ZOOM_SPEED = 0.8; // zoom change per second while + or - is held
 
-// size of the physics capsule around the fox: total height is
-// 2 * (half height + radius) = 1.2, a bit taller than the fox's back
+// The fox is long, so one round collider doesn't fit it. It gets three:
+// - an upright capsule in the middle, which stands on the ground
+// - a ball around the head and a ball around the hips, a little above the
+//   ground so they don't catch on slopes
+// The colliders turn together with the fox (see heading below), so the head
+// ball is always where the head is. Only the tip of the fluffy tail is left out.
 const CAPSULE_HALF_HEIGHT = 0.2;
 const CAPSULE_RADIUS = 0.4;
+const HEAD_COLLIDER = { position: [0, 0.3, 0.72] as const, radius: 0.32 };
+const HIPS_COLLIDER = { position: [0, 0.05, -0.45] as const, radius: 0.3 };
+
 // distance from the centre of the capsule to its bottom (half height + radius)
 const FEET_OFFSET = CAPSULE_HALF_HEIGHT + CAPSULE_RADIUS;
 // how far below the feet the ground may be and still count as standing on it
@@ -42,6 +53,16 @@ const playerPosition = new Vector3();
 const cameraPosition = new Vector3();
 const lookTarget = new Vector3();
 const cameraOffset = new Vector3();
+const UP = new Vector3(0, 1, 0);
+const rotation = new Quaternion();
+
+// shortest signed difference between two angles, in -PI..PI
+function angleDifference(from: number, to: number) {
+  return MathUtils.euclideanModulo(to - from + Math.PI, Math.PI * 2) - Math.PI;
+}
+
+// the same friction settings for every collider of the fox
+const noFriction = { friction: 0, frictionCombineRule: CoefficientCombineRule.Min };
 
 export function Player() {
   const body = useRef<RapierRigidBody>(null);
@@ -49,6 +70,7 @@ export function Player() {
   const [, getKeys] = useKeyboardControls<Control>();
   const { world, rapier } = useRapier();
   const zoom = useRef(DEFAULT_ZOOM); // current zoom, eased towards the one in the store
+  const heading = useRef(START_HEADING); // direction the fox is facing, around the y axis
   useScrollZoom();
 
   useFrame((state, delta) => {
@@ -69,6 +91,15 @@ export function Player() {
     if (isPanelOpen) direction.set(0, 0, 0);
     else direction.set(Number(right) - Number(left), 0, Number(backward) - Number(forward));
     if (direction.lengthSq() > 0) direction.normalize().multiplyScalar(SPEED);
+
+    // turn the body (and with it the colliders and the model) towards the
+    // direction of movement, smoothly and the short way around
+    if (direction.lengthSq() > 0) {
+      const target = Math.atan2(direction.x, direction.z);
+      const turn = angleDifference(heading.current, target);
+      heading.current += turn * (1 - Math.exp(-TURN_SPEED * delta));
+    }
+    body.current.setRotation(rotation.setFromAxisAngle(UP, heading.current), true);
 
     // ground check: cast a short ray straight down from the centre of the player;
     // it ignores the player's own body and trigger zones of the stations
@@ -121,14 +152,22 @@ export function Player() {
       colliders={false}
       enabledRotations={[false, false, false]}
       position={[0, 2, 0]}
+      rotation={[0, START_HEADING, 0]}
     >
       {/* no friction: movement is controlled by setting the velocity directly, and
           friction would make the player stick to walls when jumping against them */}
-      <CapsuleCollider
-        args={[CAPSULE_HALF_HEIGHT, CAPSULE_RADIUS]}
-        friction={0}
-        frictionCombineRule={CoefficientCombineRule.Min}
+      <CapsuleCollider args={[CAPSULE_HALF_HEIGHT, CAPSULE_RADIUS]} {...noFriction} />
+      <BallCollider
+        args={[HEAD_COLLIDER.radius]}
+        position={HEAD_COLLIDER.position}
+        {...noFriction}
       />
+      <BallCollider
+        args={[HIPS_COLLIDER.radius]}
+        position={HIPS_COLLIDER.position}
+        {...noFriction}
+      />
+
       {/* the group is at the centre of the capsule, the fox stands on its bottom */}
       <group ref={model}>
         <group position={[0, -FEET_OFFSET, 0]} scale={MODEL_SCALE}>

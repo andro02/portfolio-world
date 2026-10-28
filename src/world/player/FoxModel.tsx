@@ -11,7 +11,8 @@ import { playerMotion } from './playerState';
 // - standing: slow breathing, looking around, an ear twitch now and then
 // - in the air: legs stretched out, nose follows the direction of the jump
 // - landing: a short squash
-// - turning: the fox turns towards the direction it moves in
+// Turning towards the direction of movement is done by the Player component,
+// which turns the whole physics body together with its colliders.
 
 const ORANGE = '#e8803a';
 const WHITE = '#fbf1e2';
@@ -24,9 +25,6 @@ const LEG_X = 0.13;
 const LEG_Z = 0.27;
 
 const WALK_STRIDE = 2.2; // leg swing speed per unit of movement speed
-const TURN_SPEED = 12;
-// at the start the fox looks away from the camera, towards the island
-const START_HEADING = Math.PI;
 
 // how long the fox has to be in the air before it shows the jump pose, so
 // small bumps while walking downhill don't make it flicker
@@ -36,11 +34,6 @@ const LANDING_MIN_AIR_TIME = 0.25;
 // exponential smoothing that behaves the same at any frame rate
 function damp(current: number, target: number, speed: number, delta: number) {
   return MathUtils.lerp(current, target, 1 - Math.exp(-speed * delta));
-}
-
-// shortest signed difference between two angles, in -PI..PI
-function angleDifference(from: number, to: number) {
-  return MathUtils.euclideanModulo(to - from + Math.PI, Math.PI * 2) - Math.PI;
 }
 
 function Leg({ ref, x, z }: { ref: Ref<Group>; x: number; z: number }) {
@@ -76,7 +69,6 @@ function Ear({ side }: { side: 1 | -1 }) {
 }
 
 export function FoxModel() {
-  const root = useRef<Group>(null); // turning
   const squash = useRef<Group>(null); // landing squash, scales from the feet
   const body = useRef<Group>(null); // bobbing and tilting
   const head = useRef<Group>(null);
@@ -89,7 +81,6 @@ export function FoxModel() {
 
   // animation state that changes every frame; refs, so changing it doesn't re-render
   const anim = useRef({
-    heading: START_HEADING,
     walk: 0,
     air: 0,
     airTime: 0,
@@ -99,16 +90,11 @@ export function FoxModel() {
   });
 
   useFrame(({ clock }, delta) => {
-    if (!root.current || !squash.current || !body.current) return;
+    if (!squash.current || !body.current) return;
     const a = anim.current;
     const t = clock.elapsedTime;
     const { velocity, grounded } = playerMotion;
     const speed = Math.hypot(velocity.x, velocity.z);
-
-    // turn towards the direction of movement, the short way around
-    if (speed > 0.5) a.heading = Math.atan2(velocity.x, velocity.z);
-    const turn = angleDifference(root.current.rotation.y, a.heading);
-    root.current.rotation.y += turn * (1 - Math.exp(-TURN_SPEED * delta));
 
     // air time, landing
     if (grounded) {
@@ -165,79 +151,77 @@ export function FoxModel() {
   });
 
   return (
-    <group ref={root} rotation={[0, START_HEADING, 0]}>
-      <group ref={squash}>
-        <group ref={body} position={[0, BODY_Y, 0]}>
-          {/* body: a capsule lying along z */}
-          <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
-            <capsuleGeometry args={[0.22, 0.5, 2, 7]} />
+    <group ref={squash}>
+      <group ref={body} position={[0, BODY_Y, 0]}>
+        {/* body: a capsule lying along z */}
+        <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <capsuleGeometry args={[0.22, 0.5, 2, 7]} />
+          <meshStandardMaterial color={ORANGE} flatShading />
+        </mesh>
+
+        {/* white chest */}
+        <mesh position={[0, -0.06, 0.3]} scale={[1, 1.1, 0.9]}>
+          <icosahedronGeometry args={[0.17, 0]} />
+          <meshStandardMaterial color={WHITE} flatShading />
+        </mesh>
+
+        <group ref={head} position={[0, 0.3, 0.44]} scale={1.15}>
+          <mesh scale={[1.05, 0.9, 1]} castShadow>
+            <sphereGeometry args={[0.24, 6, 4]} />
             <meshStandardMaterial color={ORANGE} flatShading />
           </mesh>
 
-          {/* white chest */}
-          <mesh position={[0, -0.06, 0.3]} scale={[1, 1.1, 0.9]}>
-            <icosahedronGeometry args={[0.17, 0]} />
+          {/* white cheeks */}
+          {([1, -1] as const).map((side) => (
+            <mesh key={side} position={[side * 0.1, -0.08, 0.12]} scale={[0.9, 0.75, 1]}>
+              <icosahedronGeometry args={[0.11, 0]} />
+              <meshStandardMaterial color={WHITE} flatShading />
+            </mesh>
+          ))}
+
+          {/* snout pointing forward, with a white chin and a dark nose */}
+          <mesh position={[0, -0.05, 0.27]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+            <coneGeometry args={[0.12, 0.28, 5]} />
+            <meshStandardMaterial color={ORANGE} flatShading />
+          </mesh>
+          <mesh position={[0, -0.1, 0.22]} scale={[0.9, 0.45, 1.3]}>
+            <icosahedronGeometry args={[0.1, 0]} />
             <meshStandardMaterial color={WHITE} flatShading />
           </mesh>
+          <mesh position={[0, -0.05, 0.41]}>
+            <icosahedronGeometry args={[0.045, 0]} />
+            <meshStandardMaterial color={DARK} flatShading />
+          </mesh>
 
-          <group ref={head} position={[0, 0.3, 0.44]} scale={1.15}>
-            <mesh scale={[1.05, 0.9, 1]} castShadow>
-              <sphereGeometry args={[0.24, 6, 4]} />
-              <meshStandardMaterial color={ORANGE} flatShading />
+          {/* eyes */}
+          {([1, -1] as const).map((side) => (
+            <mesh key={side} position={[side * 0.1, 0.05, 0.19]}>
+              <icosahedronGeometry args={[0.042, 0]} />
+              <meshStandardMaterial color={DARK} roughness={0.3} />
             </mesh>
+          ))}
 
-            {/* white cheeks */}
-            {([1, -1] as const).map((side) => (
-              <mesh key={side} position={[side * 0.1, -0.08, 0.12]} scale={[0.9, 0.75, 1]}>
-                <icosahedronGeometry args={[0.11, 0]} />
-                <meshStandardMaterial color={WHITE} flatShading />
-              </mesh>
-            ))}
-
-            {/* snout pointing forward, with a white chin and a dark nose */}
-            <mesh position={[0, -0.05, 0.27]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-              <coneGeometry args={[0.12, 0.28, 5]} />
-              <meshStandardMaterial color={ORANGE} flatShading />
-            </mesh>
-            <mesh position={[0, -0.1, 0.22]} scale={[0.9, 0.45, 1.3]}>
-              <icosahedronGeometry args={[0.1, 0]} />
-              <meshStandardMaterial color={WHITE} flatShading />
-            </mesh>
-            <mesh position={[0, -0.05, 0.41]}>
-              <icosahedronGeometry args={[0.045, 0]} />
-              <meshStandardMaterial color={DARK} flatShading />
-            </mesh>
-
-            {/* eyes */}
-            {([1, -1] as const).map((side) => (
-              <mesh key={side} position={[side * 0.1, 0.05, 0.19]}>
-                <icosahedronGeometry args={[0.042, 0]} />
-                <meshStandardMaterial color={DARK} roughness={0.3} />
-              </mesh>
-            ))}
-
-            <group ref={ears}>
-              <Ear side={1} />
-              <Ear side={-1} />
-            </group>
+          <group ref={ears}>
+            <Ear side={1} />
+            <Ear side={-1} />
           </group>
+        </group>
 
-          <Leg ref={frontLeft} x={LEG_X} z={LEG_Z} />
-          <Leg ref={frontRight} x={-LEG_X} z={LEG_Z} />
-          <Leg ref={backLeft} x={LEG_X} z={-LEG_Z} />
-          <Leg ref={backRight} x={-LEG_X} z={-LEG_Z} />
+        <Leg ref={frontLeft} x={LEG_X} z={LEG_Z} />
+        <Leg ref={frontRight} x={-LEG_X} z={LEG_Z} />
+        <Leg ref={backLeft} x={LEG_X} z={-LEG_Z} />
+        <Leg ref={backRight} x={-LEG_X} z={-LEG_Z} />
 
-          {/* bushy tail with a white tip, attached at the back and pointing up and back */}
-          <group ref={tail} position={[0, 0.08, -0.42]} rotation={[0.55, 0, 0]}>
-            <mesh position={[0, 0, -0.3]} scale={[1, 1, 2.1]} castShadow>
-              <sphereGeometry args={[0.15, 6, 4]} />
-              <meshStandardMaterial color={ORANGE} flatShading />
-            </mesh>
-            <mesh position={[0, 0, -0.6]} scale={[1, 1, 1.4]} castShadow>
-              <sphereGeometry args={[0.11, 6, 4]} />
-              <meshStandardMaterial color={WHITE} flatShading />
-            </mesh>
-          </group>
+        {/* bushy tail with a white tip, attached at the back and pointing up and back */}
+        <group ref={tail} position={[0, 0.08, -0.42]} rotation={[0.55, 0, 0]}>
+          <mesh position={[0, 0, -0.3]} scale={[1, 1, 2.1]} castShadow>
+            <sphereGeometry args={[0.15, 6, 4]} />
+            <meshStandardMaterial color={ORANGE} flatShading />
+          </mesh>
+          <mesh position={[0, 0, -0.6]} scale={[1, 1, 1.4]} castShadow>
+            <sphereGeometry args={[0.11, 6, 4]} />
+            <meshStandardMaterial color={WHITE} flatShading />
+          </mesh>
         </group>
       </group>
     </group>
