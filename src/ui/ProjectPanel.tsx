@@ -5,6 +5,15 @@ import { useGameStore } from '../store/useGameStore';
 import { ProjectKindIcon } from './ProjectKindIcon';
 import { ProjectShowcase } from './ProjectShowcase';
 
+// arrow leaving a box: the link opens another website in a new tab
+function ExternalLinkIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6" />
+    </svg>
+  );
+}
+
 const CLOSE_ANIMATION_MS = 200; // keep in sync with the panel-out animation in ui.css
 
 export function ProjectPanel() {
@@ -98,11 +107,8 @@ export function ProjectPanel() {
               <div className="sheet-links">
                 {github && (
                   <a className="sheet-button" href={github} target="_blank" rel="noreferrer">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      {/* code brackets */}
-                      <path d="m8 7-5 5 5 5M16 7l5 5-5 5" />
-                    </svg>
-                    View code
+                    View on GitHub
+                    <ExternalLinkIcon />
                   </a>
                 )}
                 {demo && (
@@ -112,11 +118,8 @@ export function ProjectPanel() {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      {/* arrow out of a box */}
-                      <path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6" />
-                    </svg>
                     Live demo
+                    <ExternalLinkIcon />
                   </a>
                 )}
               </div>
