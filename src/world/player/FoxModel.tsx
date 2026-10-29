@@ -1,7 +1,9 @@
 import { useRef, type Ref } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { MathUtils, type Group } from 'three';
-import { playerMotion } from './playerState';
+import { surfaceAt } from '../surface';
+import { playerMotion, playerWorldPosition } from './playerState';
+import { takeStep } from './steps';
 
 // The player character: a low-poly fox built from simple shapes, animated in
 // code. The model stands on y = 0 and looks towards +z.
@@ -24,6 +26,8 @@ const HIP_Y = 0.42; // height where the legs are attached
 const LEG_X = 0.13;
 const LEG_Z = 0.27;
 
+// the fox's feet are this far below the point the player's position is measured at
+const FEET_BELOW_CENTRE = 0.6;
 const WALK_STRIDE = 2.2; // leg swing speed per unit of movement speed
 
 // how long the fox has to be in the air before it shows the jump pose, so
@@ -89,6 +93,21 @@ export function FoxModel() {
     pitch: 0,
   });
 
+  // one step: the sound, and a message to anything listening (paw prints)
+  const step = (strength: number, side: 1 | -1) => {
+    const { x, y, z } = playerWorldPosition;
+    const { velocity, standingOn } = playerMotion;
+    takeStep({
+      x,
+      y: y - FEET_BELOW_CENTRE,
+      z,
+      heading: Math.atan2(velocity.x, velocity.z),
+      surface: standingOn ?? surfaceAt(x, z),
+      strength,
+      side,
+    });
+  };
+
   useFrame(({ clock }, delta) => {
     if (!squash.current || !body.current) return;
     const a = anim.current;
@@ -98,7 +117,11 @@ export function FoxModel() {
 
     // air time, landing
     if (grounded) {
-      if (a.airTime > LANDING_MIN_AIR_TIME) a.squash = 1;
+      if (a.airTime > LANDING_MIN_AIR_TIME) {
+        a.squash = 1;
+        // a heavier step on landing
+        step(1.6, 1);
+      }
       a.airTime = 0;
     } else {
       a.airTime += delta;
@@ -111,7 +134,12 @@ export function FoxModel() {
     a.squash = damp(a.squash, 0, 9, delta);
 
     // walking: the faster the fox moves, the faster the legs swing
+    const previousPhase = a.phase;
     a.phase += speed * WALK_STRIDE * delta;
+    // a step every half swing: that's when one diagonal pair of legs lands
+    if (a.walk > 0.5 && Math.floor(a.phase / Math.PI) !== Math.floor(previousPhase / Math.PI)) {
+      step(1, Math.floor(a.phase / Math.PI) % 2 === 0 ? 1 : -1);
+    }
     const swing = Math.sin(a.phase) * 0.75 * a.walk;
     const stretch = 0.65 * a.air; // front legs forward, back legs back
     if (frontLeft.current) frontLeft.current.rotation.x = swing - stretch;

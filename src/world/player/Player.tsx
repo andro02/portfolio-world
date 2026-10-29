@@ -14,6 +14,7 @@ import type { Control } from './controls';
 import { useGameStore } from '../../store/useGameStore';
 import { DEFAULT_ZOOM } from './cameraZoom';
 import { FoxModel } from './FoxModel';
+import { taggedSurface } from '../surfaceTags';
 import { playerMotion, playerWorldPosition } from './playerState';
 import { touchInput } from './touchInput';
 import { usePinchZoom } from './usePinchZoom';
@@ -172,6 +173,9 @@ export function Player() {
     // tell the fox model how the player moves, so it can pick its animation
     playerMotion.velocity.set(direction.x, verticalVelocity, direction.z);
     playerMotion.grounded = grounded && !canJump;
+    playerMotion.standingOn = groundHit
+      ? taggedSurface(groundHit.collider.parent()?.userData)
+      : null;
 
     // follow the position of the visible model, not of the physics body: physics
     // runs in fixed steps of 1/60 s, so the body jumps forward in small steps,

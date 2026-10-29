@@ -1,4 +1,5 @@
 import { RigidBody } from '@react-three/rapier';
+import { ROCK } from '../surfaceTags';
 import { registerOccluder } from '../occluders';
 import { pillarGeometry } from './pillarShape';
 
@@ -25,7 +26,7 @@ export function Pillar({
 }: PillarProps) {
   return (
     // the collider wraps the exact shape of the pillar ("hull")
-    <RigidBody type="fixed" colliders="hull" position={position}>
+    <RigidBody type="fixed" colliders="hull" position={position} userData={ROCK}>
       <mesh
         ref={registerOccluder}
         geometry={pillarGeometry(variant, flatTop)}

@@ -6,6 +6,7 @@ import { Nature } from './nature/Nature';
 import { AmbientSound } from './AmbientSound';
 import { Environment } from './Environment';
 import { OccluderFade } from './OccluderFade';
+import { PawPrints } from './PawPrints';
 import { SceneReady } from './SceneReady';
 import { ShadowCasters } from './ShadowCasters';
 import { Cliffs } from './island/Cliffs';
@@ -31,6 +32,7 @@ export function World() {
       <Signpost />
       <Stations />
       <Player />
+      <PawPrints />
       <OccluderFade />
       <AmbientSound />
       {/* hides the loading screen once the world has been drawn */}

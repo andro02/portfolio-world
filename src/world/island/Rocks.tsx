@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { RigidBody } from '@react-three/rapier';
+import { ROCK } from '../surfaceTags';
 import { IcosahedronGeometry } from 'three';
 import { registerOccluder } from '../occluders';
 import { ROCKS, ROCK_COLLIDER_MIN_SCALE } from './rockLayout';
@@ -44,7 +45,13 @@ export function Rocks() {
         // only bigger rocks block the player; "hull" makes a collider that wraps
         // the rock's exact shape, like a sheet of plastic wrapped around it
         return rock.scale >= ROCK_COLLIDER_MIN_SCALE ? (
-          <RigidBody key={index} type="fixed" colliders="hull" position={rock.position}>
+          <RigidBody
+            key={index}
+            type="fixed"
+            colliders="hull"
+            position={rock.position}
+            userData={ROCK}
+          >
             {mesh}
           </RigidBody>
         ) : (
