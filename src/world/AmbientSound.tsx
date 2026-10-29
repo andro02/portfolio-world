@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { setAmbienceVolume, setLayer, startAmbience } from '../audio/ambience';
+import { setAmbienceVolume, setLayer, setMixVolumes, startAmbience } from '../audio/ambience';
 import { projects } from '../projects/registry';
 import { useGameStore } from '../store/useGameStore';
 import { POND, distanceToStream } from './decor/waterfallLayout';
@@ -56,8 +56,9 @@ export function AmbientSound() {
     sinceUpdate.current = 0;
 
     // quieter while a project panel is open, so the sound doesn't get in the way
-    const { soundOn, openProject } = useGameStore.getState();
+    const { soundOn, openProject, musicVolume, soundsVolume } = useGameStore.getState();
     setAmbienceVolume(soundOn ? (openProject ? 0.35 : 1) : 0);
+    setMixVolumes(musicVolume, soundsVolume);
 
     const { x, z } = playerWorldPosition;
 

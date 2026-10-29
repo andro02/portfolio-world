@@ -1,6 +1,6 @@
 import { useGameStore } from '../store/useGameStore';
 import { ProjectsMenu } from './ProjectsMenu';
-import { SoundToggle } from './SoundToggle';
+import { SoundControls } from './SoundControls';
 
 // buttons in the top left corner; hidden while a project panel is open
 export function TopBar() {
@@ -9,7 +9,7 @@ export function TopBar() {
   return (
     <div className="top-bar" data-hidden={isPanelOpen} inert={isPanelOpen}>
       <ProjectsMenu />
-      <SoundToggle />
+      <SoundControls />
     </div>
   );
 }

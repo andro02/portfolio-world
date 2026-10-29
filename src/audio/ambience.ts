@@ -45,11 +45,15 @@ const SMOOTHING = 0.35; // seconds a volume change takes (roughly)
 interface Engine {
   context: AudioContext;
   master: GainNode;
+  music: GainNode; // volume of the music
+  sounds: GainNode; // volume of all the other sounds together
   layers: Record<Layer, { gain: GainNode; pan: StereoPannerNode }>;
 }
 
 let engine: Engine | null = null;
 let masterVolume = 0; // 0..1, as last asked for (also before the engine exists)
+let musicVolume = 1; // the player's music and sounds sliders, 0..1
+let soundsVolume = 1;
 
 // waves: each wave rolls in, breaks and pulls back, then it's quiet until
 // the next one. A wave on a beach is mostly a wide "shhh" in the middle
@@ -93,15 +97,19 @@ function createEngine(): Engine {
   const master = gain(context, 0);
   master.connect(context.destination);
 
-  const music = gain(context, MUSIC_LEVEL);
+  const music = gain(context, MUSIC_LEVEL * musicVolume);
   music.connect(master);
   startMusic(context, music);
+
+  // all the other sounds go through one volume control, for the sounds slider
+  const sounds = gain(context, soundsVolume);
+  sounds.connect(master);
 
   // every water layer ends in its own volume and left/right position
   const makeOutput = () => {
     const pan = context.createStereoPanner();
     const level = gain(context, 0);
-    pan.connect(level).connect(master);
+    pan.connect(level).connect(sounds);
     return { gain: level, pan };
   };
   const layers = {
@@ -157,7 +165,7 @@ function createEngine(): Engine {
     else if (masterVolume > 0) void context.resume();
   });
 
-  return { context, master, layers };
+  return { context, master, music, sounds, layers };
 }
 
 // creates the sound (on the first call) and lets it play; call it from a
@@ -182,6 +190,16 @@ export function setAmbienceVolume(volume: number) {
       if (masterVolume === 0) void context.suspend();
     }, 2000);
   }
+}
+
+// the player's volume for the music and for all the other sounds, 0..1
+export function setMixVolumes(music: number, sounds: number) {
+  musicVolume = music;
+  soundsVolume = sounds;
+  if (!engine) return;
+  const now = engine.context.currentTime;
+  engine.music.gain.setTargetAtTime(MUSIC_LEVEL * music, now, 0.1);
+  engine.sounds.gain.setTargetAtTime(sounds, now, 0.1);
 }
 
 // how loud one layer is (0..1) and where it comes from (-1 left .. 1 right)
