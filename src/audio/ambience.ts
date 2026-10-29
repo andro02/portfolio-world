@@ -30,9 +30,9 @@ const MAX_LEVEL: Record<Layer, number> = {
   river: 0.12,
   fountain: 0.06,
   typing: 0.22,
-  satellite: 0.12,
-  machines: 0.14,
-  beeps: 0.1,
+  satellite: 0.16,
+  machines: 0.24,
+  beeps: 0.12,
   projector: 0.12,
 };
 
@@ -58,12 +58,10 @@ let masterVolume = 0; // 0..1, as last asked for (also before the engine exists)
 // wave: a filter opening and closing would be heard as wind.
 function startWaves(context: AudioContext, destination: AudioNode) {
   const wash = gain(context, 0);
-  // two filters one after the other cut the low rumble away more steeply
-  const washLow = filter(context, 'highpass', 240, 0.5);
-  const washLower = filter(context, 'highpass', 240, 0.5);
+  const washLow = filter(context, 'highpass', 220, 0.5);
   const washHigh = filter(context, 'lowpass', 1900, 0.5);
   startLoop(context, createNoise(context, 'pink'), washLow);
-  washLow.connect(washLower).connect(washHigh).connect(wash).connect(destination);
+  washLow.connect(washHigh).connect(wash).connect(destination);
 
   // the fizz of the foam running back down the sand, a moment after the break
   const foam = gain(context, 0);

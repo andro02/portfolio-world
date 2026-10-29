@@ -78,67 +78,176 @@ function typing(context: AudioContext, destination: AudioNode) {
   });
 }
 
-// the satellite: a soft electronic hum, and every few seconds a scanning ping
-function satellite(context: AudioContext, destination: AudioNode) {
-  const hum = gain(context, 0.35);
-  wobble(context, hum.gain, 0.5, 0.1);
-  for (const frequency of [196, 293.7]) {
-    const oscillator = context.createOscillator();
-    oscillator.frequency.value = frequency;
-    oscillator.connect(hum);
-    oscillator.start();
-  }
-  hum.connect(filter(context, 'lowpass', 900)).connect(destination);
+// a short burst of noise through a filter, fading out: the hiss of air, the
+// crack of a metal hit
+function noiseBurst(
+  context: AudioContext,
+  destination: AudioNode,
+  noise: AudioBuffer,
+  at: number,
+  length: number,
+  loudness: number,
+  type: BiquadFilterType,
+  frequency: number,
+) {
+  const source = context.createBufferSource();
+  source.buffer = noise;
+  const shape = filter(context, type, frequency, 0.8);
+  const envelope = gain(context, 0);
+  source.connect(shape).connect(envelope).connect(destination);
+  envelope.gain.setValueAtTime(0, at);
+  envelope.gain.linearRampToValueAtTime(loudness, at + Math.min(0.02, length / 4));
+  envelope.gain.exponentialRampToValueAtTime(0.0001, at + length);
+  source.start(at, Math.random() * 4);
+  source.stop(at + length + 0.05);
+}
 
-  let nextPingAt = context.currentTime + 1.5;
+// the satellite: radio static that crackles, and every few seconds a burst
+// of quick electronic blips, like data being sent down; square waves and
+// noise, so it doesn't sound like the music's soft bells
+function satellite(context: AudioContext, destination: AudioNode) {
+  const staticLevel = gain(context, 0);
+  const staticTone = filter(context, 'bandpass', 2600, 0.7);
+  startLoop(context, createNoise(context, 'white'), staticTone);
+  staticTone.connect(staticLevel).connect(destination);
+
+  const blipTone = filter(context, 'lowpass', 3800);
+  blipTone.connect(destination);
+  const blip = (at: number, frequency: number) => {
+    const envelope = gain(context, 0);
+    envelope.connect(blipTone);
+    envelope.gain.setValueAtTime(0, at);
+    envelope.gain.linearRampToValueAtTime(0.18, at + 0.004);
+    envelope.gain.setValueAtTime(0.18, at + 0.035);
+    envelope.gain.linearRampToValueAtTime(0, at + 0.05);
+    const oscillator = context.createOscillator();
+    oscillator.type = 'square';
+    oscillator.frequency.value = frequency;
+    oscillator.connect(envelope);
+    oscillator.start(at);
+    oscillator.stop(at + 0.06);
+  };
+
+  let nextCrackleAt = context.currentTime;
+  let nextBurstAt = context.currentTime + 1.5;
   everyMoment(context, (now) => {
-    if (nextPingAt < now - 1) nextPingAt = now + 0.5;
-    while (nextPingAt < now + 0.6) {
-      tone(context, destination, 1318.5, nextPingAt, 1.2, 0.35);
-      tone(context, destination, 1318.5, nextPingAt + 0.35, 0.9, 0.12); // a faint echo
-      nextPingAt += 3.5 + Math.random() * 2;
+    if (nextCrackleAt < now - 1) nextCrackleAt = now;
+    if (nextBurstAt < now - 1) nextBurstAt = now + 0.5;
+    // the static gets louder and quieter at random, many times a second
+    while (nextCrackleAt < now + 0.6) {
+      staticLevel.gain.setTargetAtTime(0.05 + Math.random() * 0.25, nextCrackleAt, 0.02);
+      nextCrackleAt += 0.04 + Math.random() * 0.06;
+    }
+    while (nextBurstAt < now + 0.6) {
+      const blips = 6 + Math.floor(Math.random() * 8);
+      for (let i = 0; i < blips; i++) {
+        blip(nextBurstAt + i * 0.065, 1400 + Math.random() * 2200);
+      }
+      nextBurstAt += 2.5 + Math.random() * 2.5;
     }
   });
 }
 
-// the factory: a low hum of machines and a soft, steady thump, like a press
+// the factory: metal clanking in a steady rhythm, now and then the hiss of
+// a pneumatic press, over a quiet hum of motors
 function machines(context: AudioContext, destination: AudioNode) {
+  const noise = createNoise(context, 'white');
+
   const hum = context.createOscillator();
   hum.type = 'sawtooth';
   hum.frequency.value = 55;
-  const humTone = filter(context, 'lowpass', 180, 0.6);
-  hum.connect(humTone).connect(gain(context, 0.2)).connect(destination);
+  hum
+    .connect(filter(context, 'lowpass', 180, 0.6))
+    .connect(gain(context, 0.15))
+    .connect(destination);
   hum.start();
 
-  const rumble = filter(context, 'bandpass', 300, 0.6);
-  startLoop(context, createNoise(context, 'brown'), rumble);
-  rumble.connect(gain(context, 0.35)).connect(destination);
+  // a metal hit: a few ringing tones that don't fit together (that's what
+  // makes metal sound like metal) and a short crack of noise
+  const clank = (at: number, loudness: number) => {
+    for (const [frequency, part] of [
+      [820, 1],
+      [1290, 0.6],
+      [1765, 0.4],
+    ]) {
+      tone(
+        context,
+        destination,
+        frequency * (0.97 + Math.random() * 0.06),
+        at,
+        0.28,
+        loudness * part * 0.35,
+      );
+    }
+    noiseBurst(context, destination, noise, at, 0.04, loudness * 0.6, 'bandpass', 2400);
+  };
 
-  let nextThumpAt = context.currentTime + 1;
+  let nextClankAt = context.currentTime + 1;
+  let beat = 0;
+  let nextHissAt = context.currentTime + 3;
   everyMoment(context, (now) => {
-    if (nextThumpAt < now - 1) nextThumpAt = now + 0.3;
-    while (nextThumpAt < now + 0.6) {
-      tone(context, destination, 90, nextThumpAt, 0.3, 0.4);
-      nextThumpAt += 1.25;
+    if (nextClankAt < now - 1) nextClankAt = now + 0.3;
+    if (nextHissAt < now - 1) nextHissAt = now + 1;
+    while (nextClankAt < now + 0.6) {
+      clank(nextClankAt, beat % 2 === 0 ? 1 : 0.55); // strong, weak, strong, weak
+      beat += 1;
+      nextClankAt += 0.85;
+    }
+    while (nextHissAt < now + 0.6) {
+      noiseBurst(context, destination, noise, nextHissAt, 0.6, 0.35, 'highpass', 2500);
+      nextHissAt += 4 + Math.random() * 3;
     }
   });
 }
 
-// the smart home: now and then a soft two-note chime of a device
+// the smart home: short beeps of household devices (a square wave, like a
+// washing machine or a microwave) and the click of a relay switching a light
 function beeps(context: AudioContext, destination: AudioNode) {
-  const notes = [
-    [880, 1318.5], // up
-    [1318.5, 987.8], // down
-    [1046.5, 1568], // up, higher
+  const noise = createNoise(context, 'white');
+  const beepTone = filter(context, 'lowpass', 3500);
+  beepTone.connect(destination);
+
+  const beep = (at: number, frequency: number, length: number) => {
+    const envelope = gain(context, 0);
+    envelope.connect(beepTone);
+    envelope.gain.setValueAtTime(0, at);
+    envelope.gain.linearRampToValueAtTime(0.2, at + 0.005);
+    envelope.gain.setValueAtTime(0.2, at + length - 0.01);
+    envelope.gain.linearRampToValueAtTime(0, at + length);
+    const oscillator = context.createOscillator();
+    oscillator.type = 'square';
+    oscillator.frequency.value = frequency;
+    oscillator.connect(envelope);
+    oscillator.start(at);
+    oscillator.stop(at + length + 0.02);
+  };
+
+  // a few device signals: three short beeps, a long and a short one, two
+  // rising ones
+  const signals: ((at: number) => void)[] = [
+    (at) => [0, 0.18, 0.36].forEach((offset) => beep(at + offset, 2000, 0.09)),
+    (at) => {
+      beep(at, 1600, 0.35);
+      beep(at + 0.5, 1600, 0.1);
+    },
+    (at) => {
+      beep(at, 1500, 0.08);
+      beep(at + 0.12, 2250, 0.12);
+    },
   ];
-  let nextChimeAt = context.currentTime + 2;
+
+  let nextSignalAt = context.currentTime + 2;
+  let nextClickAt = context.currentTime + 4;
   everyMoment(context, (now) => {
-    if (nextChimeAt < now - 1) nextChimeAt = now + 0.5;
-    while (nextChimeAt < now + 0.6) {
-      const [first, second] = notes[Math.floor(Math.random() * notes.length)];
-      tone(context, destination, first, nextChimeAt, 0.5, 0.3);
-      tone(context, destination, second, nextChimeAt + 0.14, 0.7, 0.3);
-      nextChimeAt += 4 + Math.random() * 4;
+    if (nextSignalAt < now - 1) nextSignalAt = now + 0.5;
+    if (nextClickAt < now - 1) nextClickAt = now + 1;
+    while (nextSignalAt < now + 0.6) {
+      signals[Math.floor(Math.random() * signals.length)](nextSignalAt);
+      nextSignalAt += 4 + Math.random() * 4;
+    }
+    while (nextClickAt < now + 0.6) {
+      noiseBurst(context, destination, noise, nextClickAt, 0.025, 0.8, 'bandpass', 3000);
+      nextClickAt += 2.5 + Math.random() * 3;
     }
   });
 }
