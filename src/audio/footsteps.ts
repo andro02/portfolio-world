@@ -26,6 +26,7 @@ function burst(
   type: BiquadFilterType,
   frequency: number,
   q = 0.8,
+  attack = 0.004, // seconds to reach full loudness; longer is softer
 ) {
   const source = context.createBufferSource();
   source.buffer = noise(context);
@@ -33,7 +34,7 @@ function burst(
   const envelope = gain(context, 0);
   source.connect(shape).connect(envelope).connect(destination);
   envelope.gain.setValueAtTime(0, at);
-  envelope.gain.linearRampToValueAtTime(loudness, at + 0.004);
+  envelope.gain.linearRampToValueAtTime(loudness, at + attack);
   envelope.gain.exponentialRampToValueAtTime(0.0001, at + length);
   source.start(at, Math.random() * 4);
   source.stop(at + length + 0.02);
@@ -75,8 +76,9 @@ export function playStep(
 
   switch (surface) {
     case 'grass':
-      // a soft swish of blades
-      burst(context, destination, at, 0.09, loud(0.35), 'bandpass', 2800 * vary(), 0.6);
+      // a soft rustle of blades: low and slow to start, so it doesn't click
+      burst(context, destination, at, 0.16, loud(0.22), 'bandpass', 1400 * vary(), 0.5, 0.025);
+      burst(context, destination, at + 0.03, 0.12, loud(0.1), 'lowpass', 2200, 0.7, 0.02);
       break;
     case 'sand':
       // a crunch: a few tiny grains one after another, quite low
@@ -90,9 +92,9 @@ export function playStep(
       blip(context, destination, at, 130, 90, 0.06, loud(0.25));
       break;
     case 'stone':
-      // a hard little tap of claws on stone
-      burst(context, destination, at, 0.025, loud(0.45), 'highpass', 2500);
-      blip(context, destination, at, 1100 * vary(), 900, 0.04, loud(0.12));
+      // the soft pat of paw pads on stone, with just a hint of a tap
+      burst(context, destination, at, 0.06, loud(0.45), 'lowpass', 900 * vary(), 0.7, 0.006);
+      burst(context, destination, at, 0.02, loud(0.06), 'bandpass', 3000, 1, 0.003);
       break;
     case 'water':
       // a splash, and sometimes a little bubbly "plip" after it
