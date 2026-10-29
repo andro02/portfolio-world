@@ -1,3 +1,5 @@
+import type { Surface } from '../world/surface';
+import { playStep } from './footsteps';
 import { startMusic } from './music';
 import type { StationSound } from '../projects/types';
 import { createNoise, filter, gain, startLoop, wobble } from './nodes';
@@ -38,6 +40,7 @@ const MAX_LEVEL: Record<Layer, number> = {
 
 const STATION_SOUNDS: StationSound[] = ['typing', 'satellite', 'machines', 'beeps', 'projector'];
 
+const STEPS_LEVEL = 0.35;
 const MUSIC_LEVEL = 0.45;
 const MASTER_LEVEL = 0.75;
 const SMOOTHING = 0.35; // seconds a volume change takes (roughly)
@@ -47,6 +50,7 @@ interface Engine {
   master: GainNode;
   music: GainNode; // volume of the music
   sounds: GainNode; // volume of all the other sounds together
+  steps: GainNode; // volume of the fox's steps
   layers: Record<Layer, { gain: GainNode; pan: StereoPannerNode }>;
 }
 
@@ -104,6 +108,10 @@ function createEngine(): Engine {
   // all the other sounds go through one volume control, for the sounds slider
   const sounds = gain(context, soundsVolume);
   sounds.connect(master);
+
+  // the fox's steps are part of the sounds
+  const steps = gain(context, STEPS_LEVEL);
+  steps.connect(sounds);
 
   // every water layer ends in its own volume and left/right position
   const makeOutput = () => {
@@ -165,7 +173,7 @@ function createEngine(): Engine {
     else if (masterVolume > 0) void context.resume();
   });
 
-  return { context, master, music, sounds, layers };
+  return { context, master, music, sounds, steps, layers };
 }
 
 // creates the sound (on the first call) and lets it play; call it from a
@@ -209,4 +217,10 @@ export function setLayer(layer: Layer, level: number, pan = 0) {
   const now = context.currentTime;
   layers[layer].gain.gain.setTargetAtTime(level * MAX_LEVEL[layer], now, SMOOTHING);
   layers[layer].pan.pan.setTargetAtTime(pan, now, SMOOTHING);
+}
+
+// one step of the fox on a surface (strength 1; more when landing a jump)
+export function footstep(surface: Surface, strength = 1) {
+  if (!engine || engine.context.state !== 'running') return;
+  playStep(engine.context, engine.steps, surface, strength);
 }
