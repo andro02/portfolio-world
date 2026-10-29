@@ -8,18 +8,18 @@ import { shoreDistance, smoothstep } from './island/islandShape';
 import { playerWorldPosition } from './player/playerState';
 
 // Mixes the sound of the island (audio/ambience.ts) by where the fox is: the
-// music plays everywhere at the same volume, while the sea
-// gets louder towards the beach, the waterfall, the river and the fountain
-// get louder as the fox comes closer, and the waterfall and the fountain are
-// heard from their side (the camera always looks the same way, so left and
-// right on the screen are always the same directions on the island).
+// music plays everywhere at the same volume, the sea gets louder towards the
+// beach, and the waterfall, the river, the fountain and each station's own
+// sound get louder as the fox comes closer. Most are heard from their side
+// (the camera always looks the same way, so left and right on the screen are
+// always the same directions on the island).
 
 const UPDATE_EVERY = 0.1; // seconds; the volumes glide between updates anyway
 
-// stations where someone is typing on a keyboard
-const TYPING_STATIONS = projects
-  .filter(({ station }) => station?.sound === 'typing')
-  .map(({ meta }) => meta.position);
+// every station that makes a sound, with where it stands
+const SOUNDING_STATIONS = projects.flatMap(({ meta, station }) =>
+  station?.sound ? [{ sound: station.sound, x: meta.position[0], z: meta.position[2] }] : [],
+);
 
 // 1 within `near` of a source, 0 beyond `far`, smooth in between
 function closeness(distance: number, near: number, far: number) {
@@ -69,13 +69,11 @@ export function AmbientSound() {
 
     setLayer('river', closeness(distanceToStream(x, z), 0.5, 7));
 
-    // typing: heard only right at the station
-    let nearestTyping = { distance: Infinity, dx: 0 };
-    for (const [stationX, , stationZ] of TYPING_STATIONS) {
-      const distance = Math.hypot(stationX - x, stationZ - z);
-      if (distance < nearestTyping.distance) nearestTyping = { distance, dx: stationX - x };
+    // a station's sound is heard only near it, from its side
+    for (const station of SOUNDING_STATIONS) {
+      const distance = Math.hypot(station.x - x, station.z - z);
+      setLayer(station.sound, closeness(distance, 2.5, 8), panFor(station.x - x, 6));
     }
-    setLayer('typing', closeness(nearestTyping.distance, 2.5, 8), panFor(nearestTyping.dx, 6));
 
     // the fountain stands in the middle of the island, at (0, 0)
     setLayer('fountain', closeness(Math.hypot(x, z), 2.5, 9), panFor(-x, 6));

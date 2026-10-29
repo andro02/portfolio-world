@@ -4,6 +4,7 @@ import { Text } from '@react-three/drei';
 import { CuboidCollider } from '@react-three/rapier';
 import type { Group, Mesh, MeshStandardMaterial } from 'three';
 import { MONO_FONT } from '../../fonts';
+import { StationFloor } from '../../stations/StationFloor';
 import type { StationModelProps } from '../types';
 
 // Station of the key-value storage engine: a terminal facing the path, a tower
@@ -13,7 +14,6 @@ import type { StationModelProps } from '../types';
 const DARK = '#3d4654';
 const METAL = '#6f7a89';
 const ACCENT = '#38d9c4'; // memtable and terminal text
-const HIGHLIGHT = '#ffd166';
 
 // commands typed on the terminal screen, one after another
 const SCREEN_LINES = ['>>> PUT name andrija', '>>> GET name', 'andrija', '>>> HLL COUNT users'];
@@ -250,19 +250,7 @@ function ServerRack() {
 export function KvStationModel({ highlighted }: StationModelProps) {
   return (
     <group>
-      {/* flat stone floor, almost level with the ground so the player walks onto it */}
-      <mesh position={[0, 0.02, 0]} receiveShadow>
-        <cylinderGeometry args={[1.75, 1.85, 0.08, 8]} />
-        <meshStandardMaterial color="#9a978d" flatShading />
-      </mesh>
-
-      {/* glowing ring on the floor while the player is at the station */}
-      {highlighted && (
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.07, 0]}>
-          <ringGeometry args={[1.6, 1.75, 8]} />
-          <meshBasicMaterial color={HIGHLIGHT} />
-        </mesh>
-      )}
+      <StationFloor highlighted={highlighted} />
 
       <Terminal highlighted={highlighted} />
       <LsmTower />

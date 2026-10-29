@@ -11,6 +11,7 @@ interface MistProps {
   size?: number;
   period?: number; // seconds one puff lives
   opacity?: number;
+  color?: string;
 }
 
 export function Mist({
@@ -20,6 +21,7 @@ export function Mist({
   size = 0.35,
   period = 3.2,
   opacity = 0.14,
+  color = '#ffffff',
 }: MistProps) {
   const puffs = useRef<(Mesh | null)[]>([]);
 
@@ -54,7 +56,7 @@ export function Mist({
           }}
         >
           <icosahedronGeometry args={[1, 1]} />
-          <meshBasicMaterial color="#ffffff" transparent depthWrite={false} />
+          <meshBasicMaterial color={color} transparent depthWrite={false} />
         </mesh>
       ))}
     </group>

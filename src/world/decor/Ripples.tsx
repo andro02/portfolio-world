@@ -12,6 +12,7 @@ interface RipplesProps {
   count?: number;
   period?: number; // seconds a ring takes to spread out
   opacity?: number;
+  color?: string;
 }
 
 export function Ripples({
@@ -20,6 +21,7 @@ export function Ripples({
   count = 3,
   period = 2.4,
   opacity = 0.6,
+  color = FOAM_COLOR,
 }: RipplesProps) {
   const rings = useRef<(Mesh | null)[]>([]);
 
@@ -43,7 +45,7 @@ export function Ripples({
           }}
         >
           <ringGeometry args={[radius * 0.9, radius, 24]} />
-          <meshBasicMaterial color={FOAM_COLOR} transparent depthWrite={false} />
+          <meshBasicMaterial color={color} transparent depthWrite={false} />
         </mesh>
       ))}
     </group>
