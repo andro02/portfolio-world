@@ -32,7 +32,7 @@ export interface StationModelProps {
 // towards the plaza) and must stay within about 3 x 3 units, adding its own
 // colliders for the parts the player shouldn't walk through
 // sound heard near a station (see audio/ambience.ts)
-export type StationSound = 'typing';
+export type StationSound = 'typing' | 'satellite' | 'machines' | 'beeps' | 'projector';
 
 export interface StationDesign {
   Model: ComponentType<StationModelProps>;
