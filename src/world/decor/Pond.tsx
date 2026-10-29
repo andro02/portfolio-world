@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { CuboidCollider, RigidBody } from '@react-three/rapier';
 import { DoubleSide } from 'three';
 import { terrainHeight } from '../island/islandShape';
+import { STONE } from '../surfaceTags';
 import { between, createRandom } from '../island/random';
 import { WATER_COLOR } from './water';
 import { FACE, POND, STREAM_EXIT_ANGLE } from './waterfallLayout';
@@ -106,7 +107,7 @@ export function Pond() {
 
       {/* solid wall under the rim: straight pieces of wall following the circle,
           from below the ground up to the top of the rim */}
-      <RigidBody type="fixed" colliders={false} position={[POND.x, 0, POND.z]}>
+      <RigidBody type="fixed" colliders={false} position={[POND.x, 0, POND.z]} userData={STONE}>
         {Array.from({ length: WALL_SEGMENTS }, (_, index) => {
           const angle = firstAngle + (index + 0.5) * segmentAngle;
           return (

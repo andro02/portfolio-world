@@ -96,13 +96,13 @@ export function FoxModel() {
   // one step: the sound, and a message to anything listening (paw prints)
   const step = (strength: number, side: 1 | -1) => {
     const { x, y, z } = playerWorldPosition;
-    const { velocity } = playerMotion;
+    const { velocity, standingOn } = playerMotion;
     takeStep({
       x,
       y: y - FEET_BELOW_CENTRE,
       z,
       heading: Math.atan2(velocity.x, velocity.z),
-      surface: surfaceAt(x, z),
+      surface: standingOn ?? surfaceAt(x, z),
       strength,
       side,
     });

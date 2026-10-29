@@ -7,7 +7,7 @@ import { PATH_HALF_WIDTH, distanceToPaths } from './island/paths';
 // What the ground is made of at a point on the island, for the sound of the
 // fox's steps.
 
-export type Surface = 'grass' | 'sand' | 'dirt' | 'stone' | 'water';
+export type Surface = 'grass' | 'sand' | 'dirt' | 'stone' | 'rock' | 'water';
 
 const PAVING_RADIUS = FOUNTAIN_RADIUS + 1.6; // the paved circle around the fountain
 const STATION_FLOOR_RADIUS = 1.85;

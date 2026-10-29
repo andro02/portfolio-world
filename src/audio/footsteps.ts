@@ -27,10 +27,15 @@ function burst(
   frequency: number,
   q = 0.8,
   attack = 0.004, // seconds to reach full loudness; longer is softer
+  sweepTo?: number, // if given, the filter slides to this frequency over the burst
 ) {
   const source = context.createBufferSource();
   source.buffer = noise(context);
   const shape = filter(context, type, frequency, q);
+  if (sweepTo) {
+    shape.frequency.setValueAtTime(frequency, at);
+    shape.frequency.exponentialRampToValueAtTime(sweepTo, at + length);
+  }
   const envelope = gain(context, 0);
   source.connect(shape).connect(envelope).connect(destination);
   envelope.gain.setValueAtTime(0, at);
@@ -96,11 +101,33 @@ export function playStep(
       burst(context, destination, at, 0.06, loud(0.45), 'lowpass', 900 * vary(), 0.7, 0.006);
       burst(context, destination, at, 0.02, loud(0.06), 'bandpass', 3000, 1, 0.003);
       break;
+    case 'rock':
+      // a dull pat on hard rock, with a little grit crunching under the paw
+      burst(context, destination, at, 0.07, loud(0.5), 'lowpass', 450 * vary(), 0.7, 0.005);
+      for (let i = 0, t = at + 0.008; i < 4; i++, t += 0.008 + Math.random() * 0.012) {
+        burst(
+          context,
+          destination,
+          t,
+          0.015,
+          loud(0.035),
+          'bandpass',
+          2800 + Math.random() * 1200,
+          2,
+        );
+      }
+      break;
     case 'water':
-      // a splash, and sometimes a little bubbly "plip" after it
-      burst(context, destination, at, 0.18, loud(0.5), 'bandpass', 1100 * vary(), 0.5);
-      burst(context, destination, at + 0.03, 0.12, loud(0.25), 'highpass', 3000);
-      if (Math.random() < 0.5) blip(context, destination, at + 0.06, 500, 1400, 0.08, loud(0.1));
+      // a paw going into water: a "shlop" (noise through a filter that slides
+      // down, which sounds like water closing over the paw), a low plunk for
+      // its weight, and a bubble or two rising after it. Bubbles go up in pitch.
+      burst(context, destination, at, 0.22, loud(0.3), 'lowpass', 1600 * vary(), 1.5, 0.015, 350);
+      blip(context, destination, at, 180 * vary(), 90, 0.1, loud(0.05));
+      for (let i = 0; i < 1 + Math.round(Math.random()); i++) {
+        const pitch = 400 + Math.random() * 300;
+        const delay = 0.06 + Math.random() * 0.14;
+        blip(context, destination, at + delay, pitch, pitch * 1.8, 0.06, loud(0.04));
+      }
       break;
   }
 }

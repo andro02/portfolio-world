@@ -192,9 +192,10 @@ export function PawPrints() {
         return;
       }
 
-      // after the water, paws stay wet for a few steps
+      // after the water, paws stay wet for a few steps (not on grass, and not
+      // on rocks, whose uneven tops a flat print can't follow)
       let style: PrintStyle | null = null;
-      if (next.current.wetSteps > 0 && surface !== 'grass') {
+      if (next.current.wetSteps > 0 && surface !== 'grass' && surface !== 'rock') {
         next.current.wetSteps -= 1;
         style = STYLES.wet;
       } else if (surface === 'sand') {
