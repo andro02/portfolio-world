@@ -1,18 +1,23 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { useRapier } from '@react-three/rapier';
 import {
   CircleGeometry,
   Color,
   InstancedBufferAttribute,
   MeshBasicMaterial,
   Object3D,
+  Quaternion,
   RingGeometry,
+  Vector3,
   type BufferGeometry,
   type InstancedMesh,
 } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { smoothstep } from './island/islandShape';
 import { onStep, type Step } from './player/steps';
+import { floorTopAt } from './surface';
+import { taggedSurface } from './surfaceTags';
 
 // Traces the fox leaves behind:
 // - paw prints in sand and on the paths, fading away after a while
@@ -34,6 +39,18 @@ const WET_STEPS = 10; // steps that leave wet prints after leaving the water
 const PAW_X = 0.16;
 const PAW_Z = 0.32;
 const PRINT_SCALE = 1.5;
+
+// the ray that finds the ground under each paw starts this far above the
+// fox's feet and reaches this far below them
+const RAY_ABOVE = 0.6;
+const RAY_BELOW = 0.3;
+// steeper ground than this (the side of a rock) gets no print
+const MIN_GROUND_NORMAL_Y = 0.7;
+
+const UP = new Vector3(0, 1, 0);
+const normal = new Vector3();
+const tilt = new Quaternion();
+const turn = new Quaternion();
 
 interface PrintStyle {
   color: string;
@@ -148,18 +165,48 @@ export function PawPrints() {
     Array.from({ length: RIPPLES }, () => ({ x: 0, y: 0, z: 0 })),
   );
   const next = useRef({ print: 0, ripple: 0, wetSteps: 0, now: 0 });
+  const { world, rapier } = useRapier();
 
   useEffect(() => {
     const helper = new Object3D();
     const color = new Color();
 
-    const addPrint = (x: number, y: number, z: number, heading: number, style: PrintStyle) => {
+    // finds the ground right under a paw: a short ray straight down from a bit
+    // above the paw. Only fixed things count as ground (not the fox itself, nor
+    // the stations' invisible trigger zones). Returns null if the paw doesn't
+    // really touch anything: over an edge, inside a rock, or on a steep side.
+    const groundUnder = (x: number, feetY: number, z: number) => {
+      const ray = new rapier.Ray({ x, y: feetY + RAY_ABOVE, z }, { x: 0, y: -1, z: 0 });
+      const hit = world.castRayAndGetNormal(
+        ray,
+        RAY_ABOVE + RAY_BELOW,
+        true,
+        rapier.QueryFilterFlags.EXCLUDE_SENSORS | rapier.QueryFilterFlags.EXCLUDE_DYNAMIC,
+      );
+      // a hit right at the start means the ray began inside something
+      if (!hit || hit.timeOfImpact < 0.01 || hit.normal.y < MIN_GROUND_NORMAL_Y) return null;
+      // a paw that lands on a rock next to the path leaves nothing on the rock
+      if (taggedSurface(hit.collider.parent()?.userData) === 'rock') return null;
+      let y = feetY + RAY_ABOVE - hit.timeOfImpact;
+      // the plaza's paving and the station floors are drawn a little above the
+      // ground they stand on, without colliders of their own
+      const floor = floorTopAt(x, z);
+      if (floor !== null && floor > y) y = floor;
+      return { y, normal: normal.set(hit.normal.x, hit.normal.y, hit.normal.z) };
+    };
+
+    const addPrint = (x: number, feetY: number, z: number, heading: number, style: PrintStyle) => {
       const mesh = printMesh.current;
-      if (!mesh) return;
+      const ground = groundUnder(x, feetY, z);
+      if (!mesh || !ground) return;
       const index = next.current.print;
       next.current.print = (index + 1) % PRINTS;
-      helper.position.set(x, y + 0.02, z);
-      helper.rotation.set(0, heading, 0);
+      // lifted a hair off the ground, then tilted to lie flat on the slope and
+      // turned the way the fox walks
+      helper.position.set(x, ground.y, z).addScaledVector(ground.normal, 0.015);
+      tilt.setFromUnitVectors(UP, ground.normal);
+      turn.setFromAxisAngle(UP, heading);
+      helper.quaternion.multiplyQuaternions(tilt, turn);
       helper.scale.setScalar(1);
       helper.updateMatrix();
       mesh.setMatrixAt(index, helper.matrix);
@@ -193,7 +240,7 @@ export function PawPrints() {
       }
 
       // after the water, paws stay wet for a few steps (not on grass, and not
-      // on rocks, whose uneven tops a flat print can't follow)
+      // on rocks, whose bumpy tops a flat print can't follow)
       let style: PrintStyle | null = null;
       if (next.current.wetSteps > 0 && surface !== 'grass' && surface !== 'rock') {
         next.current.wetSteps -= 1;
@@ -205,7 +252,7 @@ export function PawPrints() {
       }
       if (style) for (const paw of paws) addPrint(paw.x, y, paw.z, heading, style);
     });
-  }, [printMesh]);
+  }, [printMesh, rapier, world]);
 
   useFrame(({ clock }) => {
     const now = clock.elapsedTime;
