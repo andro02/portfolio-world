@@ -37,10 +37,11 @@ export function ProjectPanel() {
     return () => clearTimeout(timer);
   }, [closing]);
 
-  // close the panel with Escape
+  // close the panel with Escape (unless a demo is in full screen: there,
+  // Escape belongs to the browser, which leaves full screen with it)
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') closeProject();
+      if (event.key === 'Escape' && !document.fullscreenElement) closeProject();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
