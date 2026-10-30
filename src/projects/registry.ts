@@ -14,6 +14,7 @@ import { SmartHomeStationModel } from './smart-home-iot/StationModel';
 export const projects: ProjectDefinition[] = [
   {
     meta: landfillDetection,
+    loadShowcase: () => import('./landfill-detection/Showcase'),
     station: { Model: LandfillStationModel, labelHeight: 3.3, sound: 'satellite' },
   },
   {
