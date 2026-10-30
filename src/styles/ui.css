@@ -637,6 +637,22 @@
   height: auto;
 }
 
+/* a live web application needs more room than the other demos: a wider and
+   taller panel, with a narrower text column (after the rules above, so it
+   overrides them; the small-screen rules further down still win) */
+.sheet:has(.embedded-demo) {
+  width: min(1320px, 100%);
+  max-height: min(94vh, 980px);
+}
+
+.sheet:has(.embedded-demo) .sheet-body {
+  grid-template-columns: minmax(240px, 300px) 1fr;
+}
+
+.sheet-showcase:has(.embedded-demo) {
+  min-height: min(680px, 72vh);
+}
+
 .sheet-summary {
   margin: 0;
 }
