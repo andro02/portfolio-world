@@ -6,16 +6,28 @@ up to a station and press <kbd>E</kbd>. A panel opens with what the project
 does, the tech behind it, a link to the code and, where possible, a live demo
 you can try right there.
 
-> Live version: coming soon.
+**Live:** [andrija-slovic-portfolio.vercel.app](https://andrija-slovic-portfolio.vercel.app/)
 
 ## Highlights
 
-- **A world you walk through.** The island has winding paths, cliffs, a
-  fountain on the central plaza, a waterfall with a pond and a river that
-  carries you towards the sea. A signpost points the way to every project.
-- **Playable demos inside the panels.** The NoSQL key-value engine (written in
+- **A world you walk through.** The island has winding paths, cliffs, palms,
+  trees and flowers, a fountain on the central plaza, a waterfall with a pond
+  and a river that carries you towards the sea. A signpost points the way to
+  every project, and the projects menu takes you straight to any of them.
+- **A station for every project.** Each one is a small scene about the
+  project: a satellite scanning a landfill, a factory with a truck on its
+  route, a smart house whose lights switch on by themselves, an outdoor cinema
+  fed by a serverless cloud, a terminal for the storage engine.
+- **Real projects inside the panels.** The NoSQL key-value engine (written in
   Go) is compiled to WebAssembly and runs in a terminal in the browser, so you
-  can type `PUT`, `GET` or `HLL COUNT` against the real engine.
+  can type `PUT`, `GET` or `HLL COUNT` against the real engine. The landfill
+  detection system runs on its own server and is shown live in its panel, with
+  a full screen button.
+- **Sound made in code.** Generative music, waves, the waterfall and a sound
+  for each station are synthesized with the Web Audio API (no audio files)
+  and mixed by distance. Footsteps change with the ground, and the fox leaves
+  paw prints in sand and on paths that fade over time. Music and sounds have
+  their own volume sliders.
 - **A character built in code.** The fox is made of simple shapes, with
   procedural walk, idle, jump and landing animations. It turns smoothly and
   has colliders that match its body.
@@ -24,7 +36,10 @@ you can try right there.
   scroll wheel or the <kbd>+</kbd> / <kbd>-</kbd> keys.
 - **Stylized, not heavy.** Flat-shaded terrain, waves and shore foam in custom
   shaders, soft shadows that follow the player. There are no image textures:
-  everything is geometry, colors and a few small generated textures.
+  everything is geometry, colors and a few small generated textures. The code
+  is split into chunks that load in parallel behind a loading screen.
+- **Works on phones.** A virtual joystick and a jump button, pinch to zoom,
+  and panels that fit a small screen.
 
 ## Controls
 
@@ -36,6 +51,10 @@ you can try right there.
 | Close project | <kbd>Esc</kbd>                      |
 | Zoom          | scroll, <kbd>+</kbd> / <kbd>-</kbd> |
 | Reset zoom    | <kbd>R</kbd>                        |
+| Sound on/off  | <kbd>M</kbd>                        |
+
+On touch screens: the joystick in the bottom left moves the fox, the button on
+the right jumps, and two fingers zoom.
 
 ## Tech stack
 
@@ -43,7 +62,10 @@ you can try right there.
 - [React Three Fiber](https://r3f.docs.pmnd.rs) and [drei](https://drei.docs.pmnd.rs) on top of [three.js](https://threejs.org)
 - [Rapier](https://rapier.rs) physics through [@react-three/rapier](https://github.com/pmndrs/react-three-rapier)
 - [zustand](https://zustand.docs.pmnd.rs) for the small amount of shared game state
+- Web Audio API for all music and sound effects
 - Go → WebAssembly for the key-value engine demo
+- Deployed on [Vercel](https://vercel.com); live project backends run with
+  Docker on Oracle Cloud Always Free instances
 - ESLint, Prettier, husky, lint-staged and commitlint (Conventional Commits)
 
 ## Getting started
@@ -64,19 +86,21 @@ pnpm lint       # run ESLint
 src/
 ├── App.tsx              # canvas, physics and the HTML overlay
 ├── fonts.ts             # fonts for text drawn in the 3D world
+├── audio/               # music, ambience, station sounds and footsteps
 ├── projects/            # everything about the portfolio projects
 │   ├── types.ts         # ProjectMeta, ProjectDefinition, station types
 │   ├── registry.ts      # the list of projects shown in the world
 │   ├── showcaseLoader.ts
 │   └── <project>/       # meta.ts, and optionally Showcase.tsx / StationModel.tsx
 ├── stations/            # station placement, trigger zones and floating labels
-├── store/               # zustand store (nearby / open project, zoom)
-├── styles/ui.css        # all HTML overlay styles
-├── ui/                  # project panel, prompts, controls legend, terminal
+├── store/               # zustand store (nearby / open project, zoom, sound)
+├── styles/              # HTML overlay styles (ui.css, touch.css)
+├── ui/                  # panels, menus, sound controls, touch controls, terminal
 └── world/
     ├── World.tsx        # puts the whole scene together
     ├── island/          # terrain, water, paths, rocks, cliffs
     ├── decor/           # fountain, signpost, waterfall, pond, river
+    ├── nature/          # palms, trees, bushes, flowers and grass
     └── player/          # the fox, movement, camera and controls
 public/
 ├── fonts/               # Nunito and JetBrains Mono (SIL Open Font License)
@@ -98,9 +122,13 @@ board on the signpost and a panel. Optionally, add:
   component and set `loadShowcase: () => import('./<slug>/Showcase')`. It is
   downloaded in the background, separately from the main bundle, so the first
   load stays small.
+  For a project that runs on its own server, the showcase can be just
+  `<EmbeddedDemo url=... title=... />` (`src/ui/EmbeddedDemo.tsx`), which shows
+  the live application with an address bar, full screen and a new-tab link.
 - **A custom station.** Create a `StationModel.tsx` and set
   `station: { Model, labelHeight }`. The model faces the plaza (local `+z`), fits
-  in about 3 × 3 units and adds its own colliders.
+  in about 3 × 3 units and adds its own colliders. Add `sound` (`typing`,
+  `satellite`, `machines`, `beeps` or `projector`) to give it a sound nearby.
 
 ## Key-value engine demo
 
