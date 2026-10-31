@@ -465,6 +465,114 @@
   }
 }
 
+/* the dot in the bar follows the check: grey while checking, red when the
+   demo isn't answering, amber when it is slow */
+.embedded-demo[data-health='checking'] .embedded-demo-live {
+  background: #b8ad95;
+  animation: none;
+}
+
+.embedded-demo[data-health='down'] .embedded-demo-live,
+.embedded-demo[data-health='offline'] .embedded-demo-live {
+  background: #c4553a;
+  animation: none;
+}
+
+.embedded-demo[data-health='busy'] .embedded-demo-live {
+  background: #d9a23a;
+}
+
+/* a line under the bar while the server answers slowly */
+.embedded-demo-note {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px 6px 12px;
+  border-bottom: 1px solid #ecd9a8;
+  background: #fbf1d6;
+  color: #7a6230;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.embedded-demo-note span {
+  flex: 1;
+}
+
+/* instead of the browser's error page, when the demo isn't answering */
+.embedded-demo-down {
+  gap: 8px;
+  max-width: 100%;
+}
+
+.embedded-demo-down-icon {
+  width: 34px;
+  height: 34px;
+  margin-bottom: 4px;
+  fill: none;
+  stroke: #b8ad95;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.embedded-demo-down h3 {
+  margin: 0;
+  color: #3d362a;
+  font-size: 17px;
+}
+
+.embedded-demo-down p {
+  max-width: 44ch;
+  line-height: 1.45;
+}
+
+.embedded-demo-muted {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.embedded-demo-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.embedded-demo-buttons button,
+.embedded-demo-buttons a {
+  padding: 8px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.embedded-demo-buttons button {
+  background: var(--accent);
+  color: #fffdf8;
+}
+
+.embedded-demo-buttons button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.embedded-demo-buttons a {
+  background: transparent;
+  color: var(--accent-strong);
+}
+
+.embedded-demo-buttons button:hover:not(:disabled),
+.embedded-demo-buttons a:hover {
+  filter: brightness(0.95);
+}
+
 /* ---- station name tags floating above the stations ---- */
 
 .station-label {
