@@ -43,7 +43,8 @@
   max-height: calc(100vh - 210px);
 }
 
-.home-icon-button {
+/* two classes, so it wins over .home-button's padding further down */
+.home-button.home-icon-button {
   display: grid;
   place-items: center;
   width: 30px;
