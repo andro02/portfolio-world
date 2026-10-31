@@ -84,6 +84,8 @@ pnpm lint       # run ESLint
 ## Project structure
 
 ```
+api/
+└── demo-status.js       # Vercel Function: is a live demo's server answering?
 src/
 ├── App.tsx              # canvas, physics and the HTML overlay
 ├── fonts.ts             # fonts for text drawn in the 3D world
@@ -125,7 +127,13 @@ board on the signpost and a panel. Optionally, add:
   load stays small.
   For a project that runs on its own server, the showcase can be just
   `<EmbeddedDemo url=... title=... />` (`src/ui/EmbeddedDemo.tsx`), which shows
-  the live application with an address bar, full screen and a new-tab link.
+  the live application with an address bar, reload, full screen and a new-tab
+  link. To have its server checked first, add the URL of a cheap backend
+  request to `CHECKS` in `api/demo-status.js` and pass the slug as
+  `statusCheck`: when the backend isn't answering, the panel says so (and
+  checks again every 20 seconds) instead of showing the browser's error page.
+  The check runs on Vercel, so it only works in a deployment (or with
+  `vercel dev`); with `pnpm dev` the demo is simply shown.
 - **A custom station.** Create a `StationModel.tsx` and set
   `station: { Model, labelHeight }`. The model faces the plaza (local `+z`), fits
   in about 3 × 3 units and adds its own colliders. Add `sound` (`typing`,
