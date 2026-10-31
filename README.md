@@ -21,8 +21,9 @@ you can try right there.
 - **Real projects inside the panels.** The NoSQL key-value engine (written in
   Go) is compiled to WebAssembly and runs in a terminal in the browser, so you
   can type `PUT`, `GET` or `HLL COUNT` against the real engine. The landfill
-  detection system runs on its own server and is shown live in its panel, with
-  a full screen button.
+  detection system and the factory & fleet monitoring platform run on their own
+  servers and are shown live in their panels, with demo accounts, reload and
+  full screen.
 - **Sound made in code.** Generative music, waves, the waterfall and a sound
   for each station are synthesized with the Web Audio API (no audio files)
   and mixed by distance. Footsteps change with the ground, and the fox leaves

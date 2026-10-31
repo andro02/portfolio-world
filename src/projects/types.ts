@@ -22,6 +22,8 @@ export interface ProjectMeta {
   icon?: ProjectIconName; // defaults to the icon of the project's kind
   theme?: PanelTheme; // panels without a theme get the plain design
   highlights?: string[]; // a few short points about what was built
+  // public accounts for trying the live demo, shown in the panel
+  demoAccounts?: { role: string; username: string; password: string }[];
 }
 
 export interface StationModelProps {

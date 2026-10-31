@@ -39,18 +39,27 @@ interface EmbeddedDemoProps {
 }
 
 // A project's live web application inside its panel: a small bar on top (the
-// address, full screen, open in a new tab) and the application itself in an
-// iframe, a page inside the page.
+// address, reload, full screen, open in a new tab) and the application itself
+// in an iframe, a page inside the page.
 export function EmbeddedDemo({ url, title, allow }: EmbeddedDemoProps) {
   const frame = useRef<HTMLDivElement>(null);
   const [loaded, setLoaded] = useState(false);
   const [slow, setSlow] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
+  // changing it makes React create a new iframe, which loads the page again
+  const [reloadCount, setReloadCount] = useState(0);
 
   useEffect(() => {
     const timer = setTimeout(() => setSlow(true), SLOW_AFTER);
     return () => clearTimeout(timer);
-  }, []);
+  }, [reloadCount]);
+
+  // the iframe has no browser reload button of its own
+  const reload = () => {
+    setLoaded(false);
+    setSlow(false);
+    setReloadCount((count) => count + 1);
+  };
 
   // follow full screen however it ends (the button, or the browser's Escape)
   useEffect(() => {
@@ -77,6 +86,17 @@ export function EmbeddedDemo({ url, title, allow }: EmbeddedDemoProps) {
       <div className="embedded-demo-bar">
         <span className="embedded-demo-live" aria-hidden="true" />
         <span className="embedded-demo-address">{new URL(url).host}</span>
+        <button
+          type="button"
+          className="embedded-demo-action"
+          onClick={reload}
+          aria-label="Reload"
+          title="Reload"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" />
+          </svg>
+        </button>
         <button
           type="button"
           className="embedded-demo-action"
@@ -108,6 +128,7 @@ export function EmbeddedDemo({ url, title, allow }: EmbeddedDemoProps) {
 
       <div className="embedded-demo-view">
         <iframe
+          key={reloadCount}
           src={url}
           title={title}
           allow={allow}
