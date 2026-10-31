@@ -17,5 +17,6 @@ export const smartHomeIot: ProjectMeta = {
     'Independent sensor and actuator nodes on Raspberry Pi, talking over MQTT',
     'Flask server running automation and alarm logic as a state machine',
     'Monitoring with InfluxDB and Grafana, plus a live dashboard',
+    'Here: the whole house simulated in the browser, with the server logic ported to TypeScript - open the doors, type the PIN, trip the alarm',
   ],
 };

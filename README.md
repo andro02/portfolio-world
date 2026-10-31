@@ -20,7 +20,10 @@ you can try right there.
   fed by a serverless cloud, a terminal for the storage engine.
 - **Real projects inside the panels.** The NoSQL key-value engine (written in
   Go) is compiled to WebAssembly and runs in a terminal in the browser, so you
-  can type `PUT`, `GET` or `HLL COUNT` against the real engine. The landfill
+  can type `PUT`, `GET` or `HLL COUNT` against the real engine. The smart home
+  runs as a simulation in the browser: a day of two residents generated from
+  the date, the project's server logic ported to TypeScript, and a floor plan
+  where you can open doors, type the alarm PIN or speed the day up. The landfill
   detection system and the factory & fleet monitoring platform run on their own
   servers and are shown live in their panels, with demo accounts, reload and
   full screen.

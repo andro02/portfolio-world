@@ -24,6 +24,7 @@ export const projects: ProjectDefinition[] = [
   },
   {
     meta: smartHomeIot,
+    loadShowcase: () => import('./smart-home-iot/Showcase'),
     station: { Model: SmartHomeStationModel, labelHeight: 2.6, sound: 'beeps' },
   },
   {
