@@ -788,6 +788,40 @@
   font-weight: 600;
 }
 
+/* logins for a live demo: role, user name and password on a row */
+.sheet-accounts {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+
+.sheet-accounts li {
+  display: grid;
+  grid-template-columns: 5.5em 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.sheet-accounts span {
+  color: #8a7f68;
+}
+
+.sheet-accounts code {
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font:
+    500 12px/1.6 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  user-select: all;
+}
+
 .sheet-links {
   display: flex;
   flex-wrap: wrap;

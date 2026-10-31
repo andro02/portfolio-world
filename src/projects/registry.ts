@@ -19,6 +19,7 @@ export const projects: ProjectDefinition[] = [
   },
   {
     meta: fleetMonitoring,
+    loadShowcase: () => import('./fleet-monitoring/Showcase'),
     station: { Model: FleetStationModel, labelHeight: 2.9, sound: 'machines' },
   },
   {

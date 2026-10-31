@@ -129,6 +129,21 @@ export function ProjectPanel() {
               ))}
             </ul>
 
+            {meta.demoAccounts && (
+              <>
+                <h3>Demo accounts</h3>
+                <ul className="sheet-accounts">
+                  {meta.demoAccounts.map(({ role, username, password }) => (
+                    <li key={username}>
+                      <span>{role}</span>
+                      <code>{username}</code>
+                      <code>{password}</code>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
             {(github || demo) && (
               <div className="sheet-links">
                 {github && (
