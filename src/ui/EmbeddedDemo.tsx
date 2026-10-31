@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useFullscreen } from './fullscreen';
 
 // after this long without the demo having loaded, a hint with a link to open
 // it in its own tab is shown, in case the server is slow or unreachable
@@ -36,34 +37,6 @@ async function checkHealth(project: string): Promise<DemoHealth> {
   }
 }
 
-// Safari before 16.4 only has the prefixed versions of the fullscreen API
-type FullscreenElement = HTMLElement & { webkitRequestFullscreen?: () => void };
-type FullscreenDocument = Document & {
-  webkitFullscreenElement?: Element | null;
-  webkitExitFullscreen?: () => void;
-};
-
-function fullscreenElement() {
-  const doc = document as FullscreenDocument;
-  return doc.fullscreenElement ?? doc.webkitFullscreenElement ?? null;
-}
-
-// true if the browser can show an element over the whole screen (iPhones can't)
-function canGoFullscreen(element: FullscreenElement) {
-  return Boolean(element.requestFullscreen ?? element.webkitRequestFullscreen);
-}
-
-function enterFullscreen(element: FullscreenElement) {
-  if (element.requestFullscreen) void element.requestFullscreen();
-  else element.webkitRequestFullscreen?.();
-}
-
-function exitFullscreen() {
-  const doc = document as FullscreenDocument;
-  if (doc.exitFullscreen) void doc.exitFullscreen();
-  else doc.webkitExitFullscreen?.();
-}
-
 interface EmbeddedDemoProps {
   url: string;
   title: string; // describes the page for screen readers
@@ -80,10 +53,9 @@ interface EmbeddedDemoProps {
 // makes sure its server is answering; if it isn't, a message replaces the
 // browser's error page.
 export function EmbeddedDemo({ url, title, allow, statusCheck, sourceUrl }: EmbeddedDemoProps) {
-  const frame = useRef<HTMLDivElement>(null);
+  const { ref: frame, active: fullscreen, toggle } = useFullscreen<HTMLDivElement>();
   const [loaded, setLoaded] = useState(false);
   const [slow, setSlow] = useState(false);
-  const [fullscreen, setFullscreen] = useState(false);
   // changing it makes React create a new iframe, which loads the page again
   const [reloadCount, setReloadCount] = useState(0);
 
@@ -154,24 +126,9 @@ export function EmbeddedDemo({ url, title, allow, statusCheck, sourceUrl }: Embe
     if (statusCheck) runCheck();
   };
 
-  // follow full screen however it ends (the button, or the browser's Escape)
-  useEffect(() => {
-    const onChange = () => setFullscreen(fullscreenElement() === frame.current);
-    document.addEventListener('fullscreenchange', onChange);
-    document.addEventListener('webkitfullscreenchange', onChange);
-    return () => {
-      document.removeEventListener('fullscreenchange', onChange);
-      document.removeEventListener('webkitfullscreenchange', onChange);
-    };
-  }, []);
-
   const toggleFullscreen = () => {
-    const element = frame.current;
-    if (!element) return;
-    if (fullscreen) exitFullscreen();
-    else if (canGoFullscreen(element)) enterFullscreen(element);
     // without a fullscreen API, a tab of its own is the biggest it can get
-    else window.open(url, '_blank', 'noreferrer');
+    if (!toggle()) window.open(url, '_blank', 'noreferrer');
   };
 
   return (

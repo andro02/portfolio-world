@@ -145,7 +145,9 @@ export class HomeEngine {
 
   readonly log: LogEntry[] = [];
   readonly history: HistoryPoint[] = [];
-  pointsToday = 0; // what server.py would have written to InfluxDB today
+  // how many points server.py would have written to InfluxDB today (no
+  // database runs here; it is only counted)
+  pointsToday = 0;
 
   // real time (performance.now()) while running live, so the UI can animate
   // what just happened; -Infinity while replaying the past

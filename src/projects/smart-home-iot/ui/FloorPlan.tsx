@@ -27,7 +27,7 @@ const POSITIONS: Record<DeviceId, [number, number]> = {
   DPIR2: [596, 128],
   DUS2: [672, 128],
   '4SD': [540, 79],
-  BTN: [576, 79],
+  BTN: [582, 79],
   DHT3: [446, 204],
   GSG: [536, 204],
   // rooms (Pi 3)
@@ -35,7 +35,7 @@ const POSITIONS: Record<DeviceId, [number, number]> = {
   IR: [196, 62],
   BRGB: [128, 112],
   DHT2: [380, 182],
-  LCD: [134, 246],
+  LCD: [368, 249],
   DPIR3: [382, 382],
 };
 
@@ -86,9 +86,9 @@ function Marker({
       }}
     >
       <title>{`${info.name} · ${info.pi}`}</title>
-      {pulse !== null && <circle key={pulse} className="home-device-pulse" r="13" />}
-      <circle className="home-device-dot" r="13" />
-      <text className="home-device-label" dy="3">
+      {pulse !== null && <circle key={pulse} className="home-device-pulse" r="18" />}
+      <circle className="home-device-dot" r="18" />
+      <text className="home-device-label" dy="3.5">
         {SHORT[device] ?? device}
       </text>
     </g>
@@ -174,7 +174,7 @@ export function FloorPlan({ engine, realNow, selected, onSelect }: FloorPlanProp
     return (
       <text className="home-reading" x={x} y={y} textAnchor={anchor}>
         <tspan x={x}>{temperature.toFixed(1)}°C</tspan>
-        <tspan x={x} dy="12">
+        <tspan x={x} dy="14">
           {Math.round(humidity)}%
         </tspan>
       </text>
@@ -182,7 +182,7 @@ export function FloorPlan({ engine, realNow, selected, onSelect }: FloorPlanProp
   };
 
   return (
-    <svg className="home-plan" viewBox="0 0 700 480" data-alarm={alarm}>
+    <svg className="home-plan" viewBox="12 14 680 462" data-alarm={alarm}>
       <defs>
         <radialGradient id="home-glow">
           <stop offset="0" stopColor="currentColor" stopOpacity="0.75" />
@@ -253,19 +253,19 @@ export function FloorPlan({ engine, realNow, selected, onSelect }: FloorPlanProp
 
       {/* the LCD in the living room */}
       <g className="home-lcd" onClick={() => onSelect('LCD')}>
-        <rect x="156" y="228" width="168" height="38" rx="4" />
-        <text x="166" y="244">
+        <rect x="160" y="226" width="186" height="46" rx="4" />
+        <text x="170" y="245">
           {lcdTop}
         </text>
-        <text x="166" y="259">
+        <text x="170" y="263">
           {lcdBottom}
         </text>
       </g>
 
       {/* the kitchen timer's four digits */}
       <g className="home-4sd" data-blink={engine.stopwatchBlinking} onClick={() => onSelect('4SD')}>
-        <rect x="436" y="64" width="84" height="30" rx="4" />
-        <text x="478" y="86">
+        <rect x="428" y="62" width="92" height="34" rx="4" />
+        <text x="474" y="87">
           {stopwatch}
         </text>
       </g>
@@ -275,14 +275,14 @@ export function FloorPlan({ engine, realNow, selected, onSelect }: FloorPlanProp
         {Array.from({ length: people }, (_, index) => (
           <Person key={index} x={200 + index * 26} y={350} />
         ))}
-        <text className="home-people-count" x="200" y="388" textAnchor="start" dx="-10">
+        <text className="home-people-count" x="190" y="392">
           {engine.peopleCount === 0 ? 'Nobody home' : `${engine.peopleCount} at home`}
         </text>
       </g>
 
-      {dhtLabel('DHT1', 82, 178, 'start')}
-      {dhtLabel('DHT2', 360, 178, 'end')}
-      {dhtLabel('DHT3', 466, 200, 'start')}
+      {dhtLabel('DHT1', 86, 176, 'start')}
+      {dhtLabel('DHT2', 356, 176, 'end')}
+      {dhtLabel('DHT3', 470, 198, 'start')}
 
       {marker('DS1', engine.doors.DS1 === 1)}
       {marker('DPIR1', recentlySeen('DPIR1', 3000))}

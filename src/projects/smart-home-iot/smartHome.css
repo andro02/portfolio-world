@@ -32,6 +32,35 @@
   color: var(--muted);
 }
 
+/* over the whole screen: no frame, and the plan as big as the height allows */
+.home[data-fullscreen='true'] {
+  border: 0;
+  border-radius: 0;
+  font-size: 14px;
+}
+
+.home[data-fullscreen='true'] .home-plan {
+  max-height: calc(100vh - 210px);
+}
+
+.home-icon-button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 28px;
+  padding: 0;
+}
+
+.home-icon-button svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* ---- top bar: clock, status, speed ---- */
 
 .home-bar {
@@ -144,7 +173,7 @@
 .home-body {
   display: grid;
   flex: 1;
-  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 1fr);
+  grid-template-columns: minmax(0, 1.75fr) minmax(270px, 1fr);
   gap: 12px;
   min-height: 0;
   padding: 12px;
@@ -173,6 +202,7 @@
   display: block;
   width: 100%;
   height: auto;
+  max-height: 100%;
   border-radius: 8px;
   user-select: none;
 }
@@ -193,7 +223,7 @@
 
 .home-room-label {
   fill: var(--muted);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -233,7 +263,7 @@
 
 .home-reading {
   fill: var(--ink);
-  font: 600 10px var(--mono-font);
+  font: 700 12px var(--mono-font);
 }
 
 .home-lcd,
@@ -249,7 +279,7 @@
 
 .home-lcd text {
   fill: #23300c;
-  font: 700 10px var(--mono-font);
+  font: 700 12px var(--mono-font);
   white-space: pre;
 }
 
@@ -259,7 +289,7 @@
 
 .home-4sd text {
   fill: #ff4d3d;
-  font: 700 18px var(--mono-font);
+  font: 700 22px var(--mono-font);
   letter-spacing: 0.08em;
   text-anchor: middle;
 }
@@ -275,7 +305,7 @@
 
 .home-people-count {
   fill: var(--muted);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -307,7 +337,7 @@
 .home-device-label {
   fill: var(--ink);
   font:
-    800 7px system-ui,
+    800 10px system-ui,
     sans-serif;
   text-anchor: middle;
   pointer-events: none;
@@ -340,12 +370,12 @@
 
 @keyframes home-pulse {
   from {
-    r: 13px;
+    r: 18px;
     opacity: 0.9;
   }
 
   to {
-    r: 30px;
+    r: 38px;
     opacity: 0;
   }
 }

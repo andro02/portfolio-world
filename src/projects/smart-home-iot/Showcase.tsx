@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useFullscreen } from '../../ui/fullscreen';
 import type { DeviceId } from './sim/devices';
 import { HomeEngine } from './sim/engine';
 import { formatClock } from './sim/time';
@@ -65,6 +66,12 @@ export default function SmartHomeShowcase() {
   const [tab, setTab] = useState<Tab>('dashboard');
   const [selected, setSelected] = useState<DeviceId | null>(null);
   const [realNow, setRealNow] = useState(0);
+  const {
+    ref: fullscreenRef,
+    active: fullscreen,
+    supported: canFullscreen,
+    toggle: toggleFullscreen,
+  } = useFullscreen<HTMLDivElement>();
 
   // the simulated time runs from an anchor: at real time `real` it was `sim`
   const clock = useRef({ sim: 0, real: 0, speed: 1 });
@@ -120,7 +127,7 @@ export default function SmartHomeShowcase() {
   const security = engine.security;
 
   return (
-    <div className="home" data-security={security}>
+    <div ref={fullscreenRef} className="home" data-security={security} data-fullscreen={fullscreen}>
       <header className="home-bar">
         <div className="home-clock">
           <span className="home-time">{formatClock(engine.now)}</span>
@@ -170,6 +177,25 @@ export default function SmartHomeShowcase() {
               title="Back to the real time"
             >
               Live
+            </button>
+          )}
+          {/* the plan gets much bigger over the whole screen (not on iPhones,
+              which can't show a part of a page full screen) */}
+          {canFullscreen && (
+            <button
+              type="button"
+              className="home-button home-icon-button"
+              onClick={() => toggleFullscreen()}
+              aria-label={fullscreen ? 'Exit full screen' : 'Full screen'}
+              title={fullscreen ? 'Exit full screen' : 'Full screen'}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                {fullscreen ? (
+                  <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" />
+                ) : (
+                  <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
+                )}
+              </svg>
             </button>
           )}
         </div>

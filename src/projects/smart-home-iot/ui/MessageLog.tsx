@@ -30,7 +30,7 @@ export function MessageLog({ engine }: { engine: HomeEngine }) {
     <div className="home-log">
       <div className="home-log-head">
         <span className="home-muted">
-          {engine.pointsToday.toLocaleString('en')} points written to InfluxDB today
+          {engine.pointsToday.toLocaleString('en')} points today for InfluxDB (simulated)
         </span>
         <label>
           <input
