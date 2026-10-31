@@ -137,7 +137,9 @@ function useInstancePool(count: number) {
 // tells three.js that the copies' places and opacities have changed
 function markChanged(mesh: InstancedMesh) {
   mesh.instanceMatrix.needsUpdate = true;
-  mesh.geometry.getAttribute('aAlpha').needsUpdate = true;
+  // missing for a moment in development, where React mounts everything twice
+  const alpha = mesh.geometry.getAttribute('aAlpha');
+  if (alpha) alpha.needsUpdate = true;
 }
 
 interface Trace {
