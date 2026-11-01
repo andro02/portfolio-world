@@ -1,7 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useFullscreen } from '../../ui/fullscreen';
 import type { DeviceId } from './sim/devices';
-import { HomeEngine } from './sim/engine';
+import type { HomeEngine } from './sim/engine';
+import {
+  advanceLiveHome,
+  getLiveHome,
+  getLiveSpeed,
+  isLiveHomeOnTime,
+  restartLiveHome,
+  setLiveSpeed,
+} from './sim/live';
 import { formatClock } from './sim/time';
 import { Dashboard } from './ui/Dashboard';
 import { DevicePanel } from './ui/DevicePanel';
@@ -13,9 +21,10 @@ import './smartHome.css';
 // The smart home, simulated in the browser: the residents' day is generated
 // from the date (sim/schedule.ts), the devices report what they would, and
 // the project's server logic (server.py, ported in sim/engine.ts) reacts.
-// When the panel opens, today is replayed from midnight up to now, so the
-// house is in the same state for every visitor; from then on the visitor can
-// speed time up and use the devices.
+// The first time the house is needed, today is replayed from midnight up to
+// now, so it is in the same state for every visitor; from then on the visitor
+// can speed time up and use the devices. The house is shared with the one on
+// the island (sim/live.ts), and keeps running while the panel is closed.
 
 const SPEEDS = [1, 60, 600];
 
@@ -60,9 +69,9 @@ function Banner({ engine }: { engine: HomeEngine }) {
 }
 
 export default function SmartHomeShowcase() {
-  const [engine, setEngine] = useState(() => new HomeEngine(Date.now()));
-  const [speed, setSpeed] = useState(1);
-  const [live, setLive] = useState(true); // following the real clock
+  const [engine, setEngine] = useState(getLiveHome);
+  const [speed, setSpeed] = useState(getLiveSpeed);
+  const [live, setLive] = useState(isLiveHomeOnTime); // following the real clock
   const [tab, setTab] = useState<Tab>('dashboard');
   const [selected, setSelected] = useState<DeviceId | null>(null);
   const [realNow, setRealNow] = useState(0);
@@ -73,34 +82,19 @@ export default function SmartHomeShowcase() {
     toggle: toggleFullscreen,
   } = useFullscreen<HTMLDivElement>();
 
-  // the simulated time runs from an anchor: at real time `real` it was `sim`
-  const clock = useRef({ sim: 0, real: 0, speed: 1 });
-  const lastTarget = useRef(0);
-
   const refresh = useCallback(() => setRealNow(realTime()), []);
 
   useEffect(() => {
-    // a new engine starts at the real time
-    clock.current = { sim: engine.now, real: performance.now(), speed: 1 };
-    lastTarget.current = engine.now;
     const timer = setInterval(() => {
       const real = performance.now();
-      const { sim, real: anchor, speed: rate } = clock.current;
-      const target = sim + (real - anchor) * rate;
-      engine.advanceTo(target, real, lastTarget.current);
-      lastTarget.current = target;
+      advanceLiveHome(real);
       setRealNow(real);
     }, TICK_MS);
     return () => clearInterval(timer);
-  }, [engine]);
-
-  const reanchor = (rate: number) => {
-    clock.current = { sim: engine.now, real: realTime(), speed: rate };
-    lastTarget.current = engine.now;
-  };
+  }, []);
 
   const changeSpeed = (rate: number) => {
-    reanchor(rate);
+    setLiveSpeed(rate);
     setSpeed(rate);
     if (rate !== 1) setLive(false);
   };
@@ -110,7 +104,7 @@ export default function SmartHomeShowcase() {
     const next = engine.nextEventAt(engine.now + 1500);
     if (next === undefined) return;
     engine.advanceTo(next - 1500);
-    reanchor(speed);
+    setLiveSpeed(speed);
     setLive(false);
     refresh();
   };
@@ -118,7 +112,7 @@ export default function SmartHomeShowcase() {
   // back to the real time: today replayed again (what the visitor did is
   // forgotten, since the past can't be changed afterwards)
   const backToLive = () => {
-    setEngine(new HomeEngine(Date.now()));
+    setEngine(restartLiveHome());
     setSpeed(1);
     setLive(true);
   };
