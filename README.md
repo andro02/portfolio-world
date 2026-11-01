@@ -16,8 +16,8 @@ you can try right there.
   every project, and the projects menu takes you straight to any of them.
 - **A station for every project.** Each one is a small scene about the
   project: a satellite scanning a landfill, a factory with a truck on its
-  route, a smart house whose lights switch on by themselves, an outdoor cinema
-  fed by a serverless cloud, a terminal for the storage engine.
+  route, a smart house whose windows follow the simulation in its panel, an
+  outdoor cinema fed by a serverless cloud, a terminal for the storage engine.
 - **Real projects inside the panels.** The NoSQL key-value engine (written in
   Go) is compiled to WebAssembly and runs in a terminal in the browser, so you
   can type `PUT`, `GET` or `HLL COUNT` against the real engine. The smart home
@@ -27,10 +27,9 @@ you can try right there.
   platform's AWS backend is simulated the same way: its Lambda functions
   ported to TypeScript behind a rebuilt app, with every request traced through
   API Gateway, Cognito, DynamoDB, S3 and SNS (nothing is deployed, so it costs
-  nothing). The landfill
-  detection system and the factory & fleet monitoring platform run on their own
-  servers and are shown live in their panels, with demo accounts, reload and
-  full screen.
+  nothing). The landfill detection system and the factory & fleet monitoring
+  platform run on their own servers and are shown live in their panels, with
+  demo accounts, reload and full screen.
 - **Sound made in code.** Generative music, waves, the waterfall and a sound
   for each station are synthesized with the Web Audio API (no audio files)
   and mixed by distance. Footsteps change with the ground, and the fox leaves
@@ -48,6 +47,16 @@ you can try right there.
   is split into chunks that load in parallel behind a loading screen.
 - **Works on phones.** A virtual joystick and a jump button, pinch to zoom,
   and panels that fit a small screen.
+
+## Projects
+
+| Project                       | What its panel shows                                                                                           | Code                                                                                    |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| AI-Powered Landfill Detection | The live app (map, Drools risk assessment, live notifications) from its own server                             | [illegal-landfill-risk-system](https://github.com/andro02/illegal-landfill-risk-system) |
+| Factory & Fleet Monitoring    | The live platform on the load-test data, with demo accounts for each role                                      | [smart-company-platform](https://github.com/andro02/smart-company-platform)             |
+| Smart Home IoT System         | A simulated house: the residents' day, the 20 devices on a floor plan, the server's rules ported to TypeScript | [smart-home-iot-system](https://github.com/andro02/smart-home-iot-system)               |
+| Serverless Movie Platform     | The app rebuilt, with its AWS backend simulated and every request traced through the services                  | [serverless-movie-platform](https://github.com/andro02/serverless-movie-platform)       |
+| NoSQL Key-Value Engine        | The real engine compiled to WebAssembly, in a terminal                                                         | [nosql-storage-engine](https://github.com/andro02/nosql-storage-engine)                 |
 
 ## Controls
 
@@ -102,6 +111,8 @@ src/
 │   ├── registry.ts      # the list of projects shown in the world
 │   ├── showcaseLoader.ts
 │   └── <project>/       # meta.ts, and optionally Showcase.tsx / StationModel.tsx
+│                        # (smart-home-iot/sim and serverless-movies/cloud hold
+│                        # the simulations behind those two showcases)
 ├── stations/            # station placement, trigger zones and floating labels
 ├── store/               # zustand store (nearby / open project, zoom, sound)
 ├── styles/              # HTML overlay styles (ui.css, touch.css)
@@ -146,7 +157,27 @@ board on the signpost and a panel. Optionally, add:
   in about 3 × 3 units and adds its own colliders. Add `sound` (`typing`,
   `satellite`, `machines`, `beeps` or `projector`) to give it a sound nearby.
 
-## Key-value engine demo
+## Maintaining the showcases
+
+### Live demos
+
+The landfill and fleet panels embed apps that run with Docker Compose on two
+Oracle Cloud Always Free instances, set up from each project's own repository
+(its `docker-compose.yml` and `deploy/` folder). Their addresses are in the projects' `meta.ts`, and
+`api/demo-status.js` holds the request it uses to check that each backend is
+answering.
+
+### Simulations
+
+The smart home and the movie platform run entirely in the browser.
+`src/projects/smart-home-iot/sim/` generates each day from its date
+(`schedule.ts`) and runs the project's `server.py` logic (`engine.ts`).
+`src/projects/serverless-movies/cloud/` holds the simulated AWS services
+(`aws.ts`), the Lambda functions ported from Python (`lambdas.ts`) and the API
+Gateway routes from `serverless.yml` (`api.ts`). Nothing is stored outside the
+visitor's tab.
+
+### Key-value engine
 
 The engine lives in its own repository,
 [nosql-storage-engine](https://github.com/andro02/nosql-storage-engine). Its
