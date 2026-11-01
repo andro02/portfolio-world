@@ -1,12 +1,14 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { CuboidCollider, CylinderCollider } from '@react-three/rapier';
-import { DoubleSide, Shape, type MeshBasicMaterial, type MeshStandardMaterial } from 'three';
+import { Color, DoubleSide, Shape, type MeshBasicMaterial, type MeshStandardMaterial } from 'three';
 import { StationFloor } from '../../stations/StationFloor';
 import type { StationModelProps } from '../types';
 
-// Station of the smart home project: a small house whose lights switch on
-// and off by themselves (the automation), an antenna on the roof sending out
+// Station of the smart home project: a small house whose lights follow the
+// simulated house in the project's panel (sim/live.ts) - the living room and
+// kitchen in the evening, the bedroom in the RGB light's color, the light over
+// the door, red flashes during an alarm - an antenna on the roof sending out
 // signals (the devices talk over MQTT), a Raspberry Pi with blinking status
 // lights, and a garden lamp with a motion sensor that switches on when the
 // player comes close.
@@ -16,6 +18,17 @@ const WALL = '#f3ead8';
 const LIGHT = '#ffd36b';
 
 const HOUSE = { z: -0.45, width: 1.55, height: 0.95, depth: 1.25 };
+
+// the simulation is downloaded a little after the page has loaded (it is
+// shared with the panel's code), and updated a few times per second
+const SIMULATION_DELAY = 4000; // milliseconds
+const UPDATE_EVERY = 0.25; // seconds
+
+type LiveHome = typeof import('./sim/live');
+
+const ALARM_RED = new Color('#ff3b2f');
+const WARM = new Color(LIGHT);
+const WINDOW_OFF = 0.05;
 
 // triangle filling the wall under the roof, at the front and the back
 function gableShape(width: number, height: number) {
@@ -33,20 +46,72 @@ function House() {
   const roofRise = 0.55;
   const gable = useMemo(() => gableShape(width, roofRise), [width]);
 
+  const doorLight = useRef<MeshStandardMaterial>(null);
+  const antennaTip = useRef<MeshStandardMaterial>(null);
+  const live = useRef<LiveHome | null>(null);
+  const view = useRef<ReturnType<LiveHome['getIslandView']> | null>(null);
+  const lastUpdate = useRef(-Infinity);
+
+  useEffect(() => {
+    let active = true;
+    const timer = setTimeout(() => {
+      void import('./sim/live').then((module) => {
+        if (active) live.current = module;
+      });
+    }, SIMULATION_DELAY);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, []);
+
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
-    // each window on its own schedule, like lights switched by the automation
-    const schedule = [
-      [7, 0.55],
-      [5, 0.4],
-      [9, 0.65],
-    ];
-    windows.current.forEach((material, index) => {
-      if (!material) return;
-      const [period, onPart] = schedule[index % schedule.length];
-      const on = (t + index * 1.7) % period < period * onPart;
-      material.emissiveIntensity = on ? 1 : 0.05;
-    });
+
+    if (live.current && t - lastUpdate.current > UPDATE_EVERY) {
+      lastUpdate.current = t;
+      live.current.advanceLiveHome();
+      view.current = live.current.getIslandView();
+    }
+    const state = view.current;
+    const flash = state?.alarm && Math.sin(t * 12) > 0;
+
+    if (state) {
+      // living room, bedroom, kitchen (the order of the windows below)
+      const lit = [state.livingRoom, state.bedroom !== null, state.kitchen];
+      windows.current.forEach((material, index) => {
+        if (!material) return;
+        if (state.alarm) {
+          material.emissive.copy(ALARM_RED);
+          material.emissiveIntensity = flash ? 1.4 : WINDOW_OFF;
+          return;
+        }
+        if (index === 1 && state.bedroom) material.emissive.set(state.bedroom);
+        else material.emissive.copy(WARM);
+        material.emissiveIntensity = lit[index] ? 1 : WINDOW_OFF;
+      });
+    } else {
+      // until the simulation is there: each window on its own schedule
+      const schedule = [
+        [7, 0.55],
+        [5, 0.4],
+        [9, 0.65],
+      ];
+      windows.current.forEach((material, index) => {
+        if (!material) return;
+        const [period, onPart] = schedule[index % schedule.length];
+        const on = (t + index * 1.7) % period < period * onPart;
+        material.emissiveIntensity = on ? 1 : WINDOW_OFF;
+      });
+    }
+
+    if (doorLight.current)
+      doorLight.current.emissiveIntensity = state?.doorLight ? 1.8 : WINDOW_OFF;
+    if (antennaTip.current) {
+      antennaTip.current.emissive.set(flash ? '#ff3b2f' : ACCENT);
+      antennaTip.current.emissiveIntensity = flash ? 2 : 0.6;
+    }
+
     // the antenna's waves light up one after another, from the inside out
     waves.current.forEach((material, index) => {
       if (!material) return;
@@ -99,6 +164,16 @@ function House() {
         <boxGeometry args={[0.3, 0.55, 0.03]} />
         <meshStandardMaterial color="#8a5a3b" flatShading />
       </mesh>
+      {/* the light over the door (DL), switched on by motion in the hall */}
+      <mesh position={[0.32, 0.64, depth / 2 + 0.04]}>
+        <boxGeometry args={[0.12, 0.06, 0.06]} />
+        <meshStandardMaterial
+          ref={doorLight}
+          color="#fff6d8"
+          emissive={LIGHT}
+          emissiveIntensity={WINDOW_OFF}
+        />
+      </mesh>
       {[
         [-0.38, 0.55, depth / 2 + 0.01],
         [-0.38, 0.55, -depth / 2 - 0.01],
@@ -125,7 +200,12 @@ function House() {
         </mesh>
         <mesh position={[0, 0.62, 0]}>
           <sphereGeometry args={[0.05, 8, 6]} />
-          <meshStandardMaterial color={ACCENT} emissive={ACCENT} emissiveIntensity={0.6} />
+          <meshStandardMaterial
+            ref={antennaTip}
+            color={ACCENT}
+            emissive={ACCENT}
+            emissiveIntensity={0.6}
+          />
         </mesh>
         {[0.16, 0.27, 0.38].map((radius, index) => (
           <mesh key={radius} position={[0, 0.62, 0]} rotation={[0, 0, Math.PI / 4]}>
