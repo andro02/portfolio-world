@@ -29,6 +29,7 @@ export const projects: ProjectDefinition[] = [
   },
   {
     meta: serverlessMovies,
+    loadShowcase: () => import('./serverless-movies/Showcase'),
     station: { Model: MoviesStationModel, labelHeight: 3.4, sound: 'projector' },
   },
   {

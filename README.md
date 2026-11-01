@@ -23,7 +23,11 @@ you can try right there.
   can type `PUT`, `GET` or `HLL COUNT` against the real engine. The smart home
   runs as a simulation in the browser: a day of two residents generated from
   the date, the project's server logic ported to TypeScript, and a floor plan
-  where you can open doors, type the alarm PIN or speed the day up. The landfill
+  where you can open doors, type the alarm PIN or speed the day up. The movie
+  platform's AWS backend is simulated the same way: its Lambda functions
+  ported to TypeScript behind a rebuilt app, with every request traced through
+  API Gateway, Cognito, DynamoDB, S3 and SNS (nothing is deployed, so it costs
+  nothing). The landfill
   detection system and the factory & fleet monitoring platform run on their own
   servers and are shown live in their panels, with demo accounts, reload and
   full screen.
