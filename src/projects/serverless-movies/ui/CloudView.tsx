@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { stepPlayMs, traces, usage, type RunningTrace } from '../cloud/api';
+import { stepPlayMs, traces, type RunningTrace } from '../cloud/api';
 import type { NodeId } from '../cloud/aws';
 import { SOURCE } from '../cloud/lambdas';
 
@@ -169,11 +169,6 @@ export function CloudView() {
           Use the app: each click is a request, shown here as it goes through the services.
         </p>
       )}
-      <p className="mc-usage">
-        This visit: {usage.requests} API requests, {usage.invocations} Lambda invocations (
-        {usage.coldStarts} cold), {usage.gbSeconds.toFixed(3)} GB-s. Lambda's always-free tier is 1M
-        requests and 400,000 GB-s a month.
-      </p>
     </div>
   );
 }

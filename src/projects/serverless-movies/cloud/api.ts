@@ -72,15 +72,6 @@ const MEMORY_MB = 128; // provider.memorySize
 const WARM_FOR = 10 * 60 * 1000;
 const lastInvoked = new Map<string, number>();
 
-export interface Usage {
-  requests: number;
-  invocations: number;
-  coldStarts: number;
-  gbSeconds: number;
-}
-
-export const usage: Usage = { requests: 0, invocations: 0, coldStarts: 0, gbSeconds: 0 };
-
 export interface RunningTrace extends Trace {
   startedAt: number; // performance.now()
   playMs: number; // how long the panel plays it
@@ -115,7 +106,6 @@ function run(
   const cloud = getCloud();
   const queryString = new URLSearchParams(query).toString();
   trace.step('browser', `${method} ${path}${queryString ? `?${queryString}` : ''}`, 0);
-  usage.requests++;
 
   const route = ROUTES.find((candidate) => candidate.method === method && candidate.path === path);
   if (!route) {
@@ -195,9 +185,6 @@ function run(
   trace.steps.push(...lambdaTrace.steps);
 
   const billedMs = Math.ceil(handlerMs);
-  usage.invocations++;
-  if (cold) usage.coldStarts++;
-  usage.gbSeconds += (billedMs / 1000) * (MEMORY_MB / 1024);
   trace.step(
     'lambda',
     `Return ${status}`,
@@ -241,5 +228,4 @@ export function request<T = unknown>(
 export function resetApi() {
   traces.length = 0;
   lastInvoked.clear();
-  Object.assign(usage, { requests: 0, invocations: 0, coldStarts: 0, gbSeconds: 0 });
 }
