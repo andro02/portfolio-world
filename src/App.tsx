@@ -2,6 +2,7 @@ import { Suspense, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { KeyboardControls } from '@react-three/drei';
 import { Physics } from '@react-three/rapier';
+import { Analytics } from '@vercel/analytics/react';
 import { ControlsLegend } from './ui/ControlsLegend';
 import { InteractPrompt } from './ui/InteractPrompt';
 import { ProjectPanel } from './ui/ProjectPanel';
@@ -47,6 +48,7 @@ export default function App() {
       <ResetViewButton />
       <TouchControls />
       <ProjectPanel />
+      <Analytics />
     </KeyboardControls>
   );
 }
