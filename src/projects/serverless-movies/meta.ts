@@ -17,5 +17,6 @@ export const serverlessMovies: ProjectMeta = {
     'Movie catalog API on AWS Lambda behind API Gateway',
     'Metadata in DynamoDB, video files in S3',
     'Two Cognito user pools for admin and client roles',
+    'Here: the whole stack simulated in the browser - the Lambdas ported to TypeScript, each request traced through API Gateway, Cognito, DynamoDB, S3 and SNS',
   ],
 };
